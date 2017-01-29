@@ -260,6 +260,10 @@ export default function observer(arg1, arg2?) {
 	}
 	const componentClass = arg1;
 
+	if (!componentClass) {
+		throw new Error('Please pass a valid component to "observer"');
+	}
+
 	if (componentClass.isMobxInjector === true) {
 		console.warn('Mobx observer: You are trying to use \'observer\' on a component that already has \'inject\'. Please apply \'observer\' before applying \'inject\'');
 	}
@@ -278,10 +282,6 @@ export default function observer(arg1, arg2?) {
 			getDefaultProps() { return componentClass.defaultProps; },
 			render() { return componentClass.call(this, this.props, this.context); }
 		}));
-	}
-
-	if (!componentClass) {
-		throw new Error('Please pass a valid component to "observer"');
 	}
 
 	const target = componentClass.prototype || componentClass;

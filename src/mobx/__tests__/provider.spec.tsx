@@ -50,7 +50,7 @@ describe('MobX Provider', () => {
 			</article>;
 		});
 
-		const StatelessWithStores = connect(['store1'], props => {
+		const StatelessWithStores = connect(['store1'], (props) => {
 			const update = () => props.store1.data = 'hello world';
 
 			return <article>
@@ -104,7 +104,7 @@ describe('MobX Provider', () => {
 		});
 
 		it('should inherit stores from parent', () => {
-			const InheritComponent = connect(['store1', 'store2'], props => {
+			const InheritComponent = connect(['store1', 'store2'], (props) => {
 				return <div>
 					<span>{props.store1.data}</span>
 					<span>{props.store2.data}</span>

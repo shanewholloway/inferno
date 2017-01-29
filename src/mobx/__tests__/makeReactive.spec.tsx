@@ -37,7 +37,7 @@ describe('MobX Observer', () => {
 		render() {
 			todoListRenderings++;
 			let todos = store.todos;
-			return <div>{todos.map(todo => <TodoItem todo={todo}/>)}</div>;
+			return <div>{todos.map((todo) => <TodoItem todo={todo}/>)}</div>;
 		}
 	});
 
@@ -59,7 +59,7 @@ describe('MobX Observer', () => {
 	it('should render a todo list with non observale item', () => {
 		const FlatList = observer(class extends Component<any, any> {
 			render({ extra }) {
-				return <div>{store.todos.map(title => <li>{ title }{ extra.test }</li>)}</div>;
+				return <div>{store.todos.map((title) => <li>{ title }{ extra.test }</li>)}</div>;
 			}
 		});
 
