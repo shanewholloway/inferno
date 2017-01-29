@@ -1,11 +1,7 @@
 import {
-	VNodeFlags,
-	VNode
-} from '../core/shapes';
-import {
 	isNull,
 	isObject
-} from '../shared';
+} from 'inferno-helpers';
 
 export default function isValidElement(obj: VNode): boolean {
 	const isNotANullObject = isObject(obj) && isNull(obj) === false;
@@ -14,5 +10,5 @@ export default function isValidElement(obj: VNode): boolean {
 	}
 	const flags = obj.flags;
 
-	return !!(flags & (VNodeFlags.Component | VNodeFlags.Element)) as boolean;
+	return (flags & (VNodeFlags.Component | VNodeFlags.Element)) > 0;
 };

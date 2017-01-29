@@ -1,30 +1,34 @@
 {
-	"name": "inferno-mobx",
-	"version": "1.0.0-beta33",
-	"license": "MIT",
-	"description": "Official Inferno bindings for Mobx",
-	"author": {
-		"name": "Ryan Megidov",
-		"email": "ryan@megidov.com"
-	},
-	"bugs": {
-		"url": "https://github.com/trueadm/inferno/issues"
-	},
-	"homepage": "https://github.com/trueadm/inferno#readme",
-	"main": "inferno-mobx.js",
-	"keywords": [
-		"babel",
-		"react",
-		"inferno",
-		"framework",
-		"interfaces",
-		"reactive",
-		"mobservable",
-		"mobx"
-	],
-	"repository": "https://github.com/trueadm/inferno",
-	"dependencies": {
-		"inferno": "1.0.0-beta33",
-		"mobx": "*"
-	}
+  "name": "inferno-mobx",
+  "version": "1.2.2",
+  "license": "MIT",
+  "description": "Official Inferno bindings for Mobx",
+  "author": {
+    "name": "Ryan Megidov",
+    "email": "ryan@megidov.com"
+  },
+  "bugs": {
+    "url": "https://github.com/infernojs/inferno/issues"
+  },
+  "homepage": "https://github.com/infernojs/inferno#readme",
+  "main": "inferno-mobx.js",
+  "keywords": [
+    "babel",
+    "react",
+    "inferno",
+    "framework",
+    "interfaces",
+    "reactive",
+    "mobservable",
+    "mobx"
+  ],
+  "repository": "https://github.com/infernojs/inferno",
+  "dependencies": {
+    "inferno": "1.2.2",
+    "inferno-component": "1.2.2",
+    "inferno-create-class": "1.2.2",
+    "inferno-create-element": "1.2.2",
+    "inferno-helpers": "1.2.2",
+    "mobx": "*"
+  }
 }

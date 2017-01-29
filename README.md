@@ -1,31 +1,31 @@
 <p align="center"><img src="http://infernojs.org/img/inferno.png" width="150px"></p>
 <p>&nbsp;</p>
 
-[![Build Status](https://img.shields.io/travis/trueadm/inferno/master.svg?style=flat-square)](https://travis-ci.org/trueadm/inferno/branches)
-[![Coverage Status](https://img.shields.io/coveralls/trueadm/inferno/master.svg?style=flat-square)](https://coveralls.io/github/trueadm/inferno?branch=master)
-[![Dependencies](https://img.shields.io/david/trueadm/inferno.svg?style=flat-square)](https://david-dm.org/trueadm/inferno)
-[![devDependency Status](https://david-dm.org/trueadm/inferno/dev-status.svg?style=flat-square)](https://david-dm.org/trueadm/inferno#info=devDependencies)
-[![MIT](https://img.shields.io/npm/l/inferno.svg?style=flat-square)](https://github.com/trueadm/inferno/blob/master/LICENSE.md)
+[![Build Status](https://img.shields.io/travis/infernojs/inferno/master.svg?style=flat-square)](https://travis-ci.org/infernojs/inferno/branches)
+[![Coverage Status](https://img.shields.io/coveralls/infernojs/inferno/master.svg?style=flat-square)](https://coveralls.io/github/infernojs/inferno?branch=master)
+[![Dependencies](https://img.shields.io/david/infernojs/inferno.svg?style=flat-square)](https://david-dm.org/infernojs/inferno)
+[![devDependency Status](https://david-dm.org/infernojs/inferno/dev-status.svg?style=flat-square)](https://david-dm.org/infernojs/inferno#info=devDependencies)
+[![MIT](https://img.shields.io/npm/l/inferno.svg?style=flat-square)](https://github.com/infernojs/inferno/blob/master/LICENSE.md)
 [![NPM Version](https://img.shields.io/npm/v/inferno.svg?style=flat-square)](https://www.npmjs.com/package/inferno)
-[![npm downloads](https://img.shields.io/npm/dm/inferno-dom.svg?style=flat-square)](https://www.npmjs.org/package/inferno-dom)
+[![npm downloads](https://img.shields.io/npm/dm/inferno.svg?style=flat-square)](https://www.npmjs.org/package/inferno)
 [![Slack Status](https://inferno-slack.herokuapp.com/badge.svg)](https://inferno-slack.herokuapp.com/)
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/LukeSheard.svg)](https://saucelabs.com/u/LukeSheard)
 
-Inferno is an insanely fast, `8kb` React-like library for building high-performance user interfaces on both the client and server.
+Inferno is an insanely fast, `9kb` React-like library for building high-performance user interfaces on both the client and server.
 
 To quote a member of the React core team at Facebook:
 > Inferno 1.0 is really well written. It's how I would've rewritten React. I'd recommend reading its source to learn.
 
-Inferno aims to provide all the great benefits that React does, plus other great features for people already familiar with the React ecosystem, such as: lifecycle events on functional components, server side render streams, better real-world performance, lower memory consumption and faster parse/load times. Furthermore, Inferno allows people to switch their **existing React projects** to Inferno in a few lines of code using [`inferno-compat`](https://github.com/trueadm/inferno/tree/master/packages/inferno-compat).
+Inferno aims to provide all the great benefits that React does, plus other great features for people already familiar with the React ecosystem, such as: lifecycle events on functional components, server side render streams, better real-world performance, lower memory consumption and faster parse/load times. Furthermore, Inferno allows people to switch their **existing React projects** to Inferno in a few lines of code using [`inferno-compat`](https://github.com/infernojs/inferno/tree/master/packages/inferno-compat).
 
 For those not familiar with React, Inferno is a JavaScript library for building user interfaces in a **declarative** manner. Rather than working with MVC/MVVM style patterns, Inferno uses a **component-based** approach where data flows in one direction, making coding predictable, re-usable and highly testable. Based on the concept of *learn once, write anywhere*, Inferno doesn't impose any restrictions on how you create components. You literally write JavaScript to state how you'd like your UI to look – Inferno does all the rest. Inferno also renders content on the server via `inferno-server` and NodeJS, so you can write awesome UIs that get rendered full-stack.
 
-In terms of performance, Inferno is currently the **fastest** JavaScript UI library there is – both in benchmarks and actual real-world scenarios. It excels on the browser at initial page load, parse times, render times and update times. Inferno's server-side rendering is around 10x faster than React, 7x faster than Preact and around 5x faster than Vue and Angular 2.
+In terms of performance, Inferno is currently the **fastest** JavaScript UI library there is – both in benchmarks and actual real-world scenarios. It excels on the browser at initial page load, parse times, render times and update times. Inferno's server-side rendering is around 5x faster than React, around 3x faster than Angular 2 and around 1.5x faster than Preact and Vue.
 
 ## But why?
 
-Inferno started as an idea two years ago, to see if a UI library could really improve the experience, battery, memory usage and performance on mobile devices. At the time we really struggled to get good performance on *any* UI library/framework at the time – it simply wasn't happening, we spent a huge amount of time writing lots of vanilla JavaScript code and it did the job – but it was a mess.
+Inferno started as an idea two years ago, to see if a UI library could really improve the experience, battery, memory usage and performance on mobile devices. At the time we really struggled to get good performance on *any* UI library/framework – it simply wasn't happening, we spent a huge amount of time writing lots of vanilla JavaScript code and it did the job – but it was a mess.
 
 Since then, things haven't really improved much in the mobile space. Libraries have gotten smaller, but the time to parse a 2mb app can result in 5+ seconds time before the user can even see anything. Frameworks and libraries need to lose bloat, they need to care about performance. Developing on a MacBook Pro and seeing animations, routing, complex UIs instantly appear is *not* going to happen on an average mobile device (especially in emerging countries).
 
@@ -37,8 +37,8 @@ Inferno proves that it is possible to be fast on mobile. Parse-time, load-time, 
 - One of the fastest front-end frameworks for rendering UI in the DOM
 - React-like API, concepts and component lifecycle events
 - Partial synthetic event system, providing delegation to certain events for better performance
-- Inferno's [`linkEvent`](https://github.com/trueadm/inferno/blob/master/README.md#linkevent-package-inferno) feature removes the need to use arrow functions or binding event callbacks
-- Lightweight filesize of only 8kb
+- Inferno's [`linkEvent`](https://github.com/infernojs/inferno/blob/master/README.md#linkevent-package-inferno) feature removes the need to use arrow functions or binding event callbacks
+- Lightweight filesize of only 9kb
 - Isomorphic rendering on both client and server with `inferno-server`
 - Highly modular with very few opinions on how things should be done
 - Unlike React and Preact, Inferno has lifecycle events on functional components
@@ -58,7 +58,7 @@ Inferno proves that it is possible to be fast on mobile. Parse-time, load-time, 
 
 Let's start with some code. As you can see, Inferno intentionally keeps the same, good, design ideas as React regarding components: one-way data flow and separation of concerns.
 
-In these examples, JSX is used via the [Inferno JSX Babel Plugin](https://github.com/infernojs/babel-plugin-inferno) to provide a simple way to express Inferno virtual DOM. You do not need to use JSX, it's completely **optional**, you can use [hyperscript](https://github.com/trueadm/inferno/tree/master/packages/inferno-hyperscript) or [createElement](https://github.com/trueadm/inferno/tree/master/packages/inferno-create-element) (like React does).
+In these examples, JSX is used via the [Inferno JSX Babel Plugin](https://github.com/infernojs/babel-plugin-inferno) to provide a simple way to express Inferno virtual DOM. You do not need to use JSX, it's completely **optional**, you can use [hyperscript](https://github.com/infernojs/inferno/tree/master/packages/inferno-hyperscript) or [createElement](https://github.com/infernojs/inferno/tree/master/packages/inferno-create-element) (like React does).
 
 ```jsx
 import Inferno from 'inferno';
@@ -98,68 +98,74 @@ Inferno.render(<MyComponent />, document.body);
 
 ### More Examples
 
-- [**Simple Clock** (@JSFiddle)](https://jsfiddle.net/o01mvsyn/)
+- [**Simple Clock** (@JSFiddle)](https://jsfiddle.net/u7p19pvc/)
 
 ## Getting Started
 
 The best way to start to use Inferno is by using [Create Inferno App](https://github.com/infernojs/create-inferno-app). You can get setup and running within a few minutes.
 
-Alternatively, you can get started with Inferno using the [Inferno Boilerplate](https://github.com/infernojs/inferno-boilerplate) for a very simple setup. For a more advanced example demonstrating how Inferno might be used, we recommend trying out [Inferno Starter Project](https://github.com/nightwolfz/inferno-starter) by [nightwolfz](https://github.com/nightwolfz/).
+Alternatively, you can get started with Inferno using the [Inferno Boilerplate](https://github.com/infernojs/inferno-boilerplate) for a very simple setup. For a more advanced example demonstrating how Inferno might be used, we recommend trying out [Inferno Starter Project](https://github.com/nightwolfz/inferno-starter) by [nightwolfz](https://github.com/nightwolfz/). For using inferno to build a mobile app [Inferno Mobile Starter Project](https://github.com/Rudy-Zidan/inferno-mobile) by [Rudy-Zidan](https://github.com/Rudy-Zidan).
 
 Core package:
 
 ```sh
-npm install --save inferno@beta33
+npm install --save inferno
 ```
 
 Addons:
 
 ```sh
-# ES2015 stateful components
-npm install --save inferno-component@beta33
+# ES2015 class components
+npm install --save inferno-component
 # server-side rendering
-npm install --save inferno-server@beta33
+npm install --save inferno-server
 # routing
-npm install --save inferno-router@beta33
+npm install --save inferno-router
 ```
 
 Pre-bundled files for browser consumption can be found on [our cdnjs](https://cdnjs.com/libraries/inferno):
 
 ```
-https://cdnjs.cloudflare.com/ajax/libs/inferno/1.0.0-beta33/inferno.min.js
+https://cdnjs.cloudflare.com/ajax/libs/inferno/1.2.2/inferno.min.js
+```
+
+Or on unpkg.com:
+
+```
+https://unpkg.com/inferno@1.2.2/dist/inferno.min.js
 ```
 
 ### Creating Virtual DOM
 
 #### JSX:
 ```sh
-npm install --save-dev babel-plugin-inferno@beta13
+npm install --save-dev babel-plugin-inferno
 ```
 
 #### Hyperscript:
 ```sh
-npm install --save inferno-hyperscript@beta33
+npm install --save inferno-hyperscript
 ```
 
 #### createElement:
 ```sh
-npm install --save inferno-create-element@beta33
+npm install --save inferno-create-element
 ```
 
 ### Compatibility with existing React apps
 ```sh
-npm install --save-dev inferno-compat@beta33
+npm install --save-dev inferno-compat
 ```
 
-Note: Make sure you read more about [`inferno-compat`](https://github.com/trueadm/inferno/tree/master/packages/inferno-compat) before using it.
+Note: Make sure you read more about [`inferno-compat`](https://github.com/infernojs/inferno/tree/master/packages/inferno-compat) before using it.
 
 ## Third-party state libraries
 
 Inferno now has bindings available for some of the major state management libraries out there:
 
-- [Redux](https://github.com/trueadm/inferno/tree/dev/packages/inferno-redux) via `inferno-redux`
-- [MobX](https://github.com/trueadm/inferno/tree/dev/packages/inferno-mobx) via `inferno-mobx`
-- [Cerebral](https://github.com/cerebral/cerebral-view-inferno) via `cerebral-view-inferno`
+- Redux via [`inferno-redux`](https://github.com/infernojs/inferno/tree/dev/packages/inferno-redux)
+- MobX via [`inferno-mobx`](https://github.com/infernojs/inferno/tree/dev/packages/inferno-mobx)
+- Cerebral via [`cerebral-view-inferno`](https://github.com/cerebral/cerebral-view-inferno)
 
 ## JSX
 
@@ -167,33 +173,32 @@ Inferno has its own [JSX Babel plugin](https://github.com/trueadm/babel-plugin-i
 
 ## Differences from React
 
-- Inferno is much smaller in size, `8kb` vs `45kb` gzip. This means Inferno is faster to transfer over the network but more importantly, is *much* faster to parse – this makes a big impact on mobile.
+- Inferno is much smaller in size, `9kb` vs `45kb` gzip. This means Inferno is faster to transfer over the network but more importantly, is *much* faster to parse – this makes a big impact on mobile.
 - Inferno is considerably faster than React. This doesn't apply to only benchmarks, but real-world applications that companies have converted to Inferno from React. Ranging from 40% - 110% performance improvement with Inferno `1.0`. No other React-like library gets close to this performance gain over React.
 - Inferno doesn't have a fully synthetic event system like React does. Inferno has a partially synthetic event system, instead opting to only delegate certain events (such as `onClick`).
 - Inferno doesn't support React Native. Inferno was only designed for the browser/server with the DOM in mind.
 - Inferno doesn't support string refs – although this can be enabled using `inferno-compat`. We don't recommend using them, they are the source of many memory leaks and performance issues in real-world apps. Stick with function callback refs instead.
-- Inferno includes `render` on the main core package, rather than have a `InfernoDOM` package like React does. We used to do it that way, but we found people simply didn't like it given we don't support native. Furthermore, by not splitting them, we improved performance and bundle sizes.
-- Inferno provides lifecycle events on stateless components. This is a major win for people who prefer lightweight components rather than bloated ES2015 classes.
-- Inferno has its own devtools debugger (still in development) that differs from the React implementation. Inferno's debugger is on average, 4x faster – fixing lots of the issues with slow, laggy interfaces when developers are debugging.
+- Inferno includes `render` on the main core package, rather than have an `InfernoDOM` package like React does. We used to do it that way, but we found people simply didn't like it given we don't support native. Furthermore, by not splitting them, we improved performance and bundle sizes.
+- Inferno provides lifecycle events on functional components. This is a major win for people who prefer lightweight components rather than bloated ES2015 classes.
+- Inferno is able to use the React Dev Tools extensions for Chrome/Firefox/etc to provide the same level of debugging experience to user of Inferno via `inferno-devtools`.
 
 ## Differences from Preact
 
-- Inferno is larger in size, `8kb` vs `3kb` gzip. This means that Preact should parse faster than Inferno – if only slightly.
+- Inferno is larger in size, `9kb` vs `3kb` gzip. This means that Preact should parse faster than Inferno – if only slightly.
 - Inferno has a partial synthetic event system, resulting in better performance via delegation of certain events.
 - Inferno is *much* faster than Preact in rendering, updating and removing elements from the DOM. Inferno diffs against virtual DOM, rather than the real DOM (except for when loading from server-side rendered content) which means it can make drastic improvements. Unfortunately, diffing against the real DOM has a 30-40% overhead cost in operations.
 - Inferno fully supports controlled components for `input`/`select`/`textarea` elements. This prevents lots of edgecases where the virtual DOM is not the source of truth (it should always be). Preact pushes the source of truth to the DOM itself.
-- Inferno provides lifecycle events on stateless components. This is a major win for people who prefer lightweight components rather than bloated ES2015 classes.
-- Inferno has its own devtools debugger (still in development) that differs from the Preact (React bound) implementation. Inferno's debugger is on average, 4x faster – fixing lots of the issues with slow, laggy interfaces when developers are debugging.
+- Inferno provides lifecycle events on functional components. This is a major win for people who prefer lightweight components rather than bloated ES2015 classes.
 
 ## Event System
 
-Like React, Inferno also uses a light-weight synthetic event system in certain places (although both event systems differ massively). Inferno's event system provides highly efficient delegation and an event helper called [`linkEvent`](https://github.com/trueadm/inferno/blob/master/README.md#linkevent-package-inferno).
- 
-One major difference between Inferno and React is that Inferno does not rename events or changes how they work by default. Inferno only specifies that events should be camel cased, rather than lower case. Lower case events will bypass
+Like React, Inferno also uses a light-weight synthetic event system in certain places (although both event systems differ massively). Inferno's event system provides highly efficient delegation and an event helper called [`linkEvent`](https://github.com/infernojs/inferno/blob/master/README.md#linkevent-package-inferno).
+
+One major difference between Inferno and React is that Inferno does not rename events or change how they work by default. Inferno only specifies that events should be camel cased, rather than lower case. Lower case events will bypass
 Inferno's event system in favour of using the native event system supplied by the browser. For example, when detecting changes on an `<input>` element, in React you'd use `onChange`, with Inferno you'd use `onInput` instead (the
 native DOM event is `oninput`).
 
-As this is feature is a very recent addition to Inferno, there are only a handful of events that use Inferno's event system. They are outlined below:
+This feature is a very recent addition to Inferno, so there are only a handful of events that use Inferno's event system:
 - `onClick`
 - `onDblClick`
 - `onMouseMove`
@@ -207,6 +212,15 @@ As this is feature is a very recent addition to Inferno, there are only a handfu
 - `onChange`
 
 More events are expected to be supported in future versions.
+
+## Controlled Components
+
+In HTML, form elements such as `<input>`, `<textarea>`, and `<select>` typically maintain their own state and update it based on user input.
+In Inferno, mutable state is typically kept in the state property of components, and only updated with `setState()`.
+
+We can combine the two by making the Inferno state be the "single source of truth". Then the Inferno component that renders a form also
+controls what happens in that form on subsequent user input. An input form element whose value is controlled by
+Inferno in this way is called a "controlled component".
 
 ## Inferno Top-Level API
 
@@ -225,7 +239,7 @@ Warning: If the container element is not empty before rendering, the content of 
 
 ### `createRenderer` (package: `inferno`)
 
-`createRenderer` allows for functional composition when rendering content to the DOM. An example of this is shown below:
+`createRenderer` allows for functional composition when rendering content to the DOM. Example:
 
 ```javascript
 import Inferno from 'inferno';
@@ -265,7 +279,7 @@ Inferno.render(createElement(BasicComponent, { title: 'abc' }), document.body);
 
 ### `Component` (package: `inferno-component`)
 
-**Stateful component:**
+**Class component:**
 
 ```javascript
 import Component from 'inferno-component';
@@ -279,7 +293,7 @@ class MyComponent extends Component {
 
 This is the base class for Inferno Components when they're defined using ES6 classes.
 
-**Stateless component:**
+**Functional component:**
 
 ```javascript
 import Inferno from 'inferno';
@@ -289,7 +303,7 @@ const MyComponent = ({ name, age }) => (
 );
 ```
 
-Stateless components are first-class functions where their first argument is the `props` passed through from their parent.
+Functional components are first-class functions where their first argument is the `props` passed through from their parent.
 
 ### `createVNode` (package: `inferno`)
 ```js
@@ -318,7 +332,7 @@ const vNode = Inferno.createVNode(2, 'div', { className: 'example' }, 'Hello wor
 Inferno.render(vNode, container);
 ```
 
-The first argument for `createVNode()` is a value from [`VNodeFlags`](https://github.com/trueadm/inferno/tree/master/packages/inferno-vnode-flags), this is numerical value that used to tell Inferno what the VNode is meant to describe on the page.
+The first argument for `createVNode()` is a value from [`VNodeFlags`](https://github.com/infernojs/inferno/tree/master/packages/inferno-vnode-flags), this is a numerical value that tells Inferno what the VNode describes on the page.
 
 ### `cloneVNode` (package: `inferno`)
 ```js
@@ -358,22 +372,18 @@ const newVNode = Inferno.cloneVNode(vNode, { id: 'new' }); // we are adding an i
 Inferno.render(newVNode, container);
 ```
 
-### `enableFindDOMNode` (package: `inferno`)
-
-This enables `findDOMNode()`. We strongly recommend against using this API as it introduces a significant impact to performance. In the future this API command will be removed, along with `findDOMNode()`;
-
 ### `findDOMNode` (package: `inferno`)
 
-Once enabled via `enableFindDOMNode()` at the start of an application, `findDOMNode()` is enabled.
+Once enabled via `options.findDOMNodeEnabled()` at the start of an application, `findDOMNode()` is enabled.
 
-Note: we recommend using a `ref` callback on a component to find its instance, rather than using `findDOMNode()`. `findDOMNode()` cannot be used on functional components and it introduces a significant impact to performance.
+Note: we recommend using a `ref` callback on a component to find its instance, rather than using `findDOMNode()`. `findDOMNode()` cannot be used on functional components and it introduces a significant performance impact.
 
-If a component has been mounted into the DOM, this returns the corresponding native browser DOM element. This method is useful for reading values out of the DOM, such as form field values and performing DOM measurements. 
+If a component has been mounted into the DOM, this returns the corresponding native browser DOM element. This method is useful for reading values out of the DOM, such as form field values and performing DOM measurements.
 In most cases, you can attach a ref to the DOM node and avoid using `findDOMNode()` at all. When render returns null or false, `findDOMNode()` returns null.
 
 ### `linkEvent` (package: `inferno`)
 
-`linkEvent()` is a helper function that allows attachment of `props`/`state`/`context` or other data to events without needing to `bind()` them or use arrow functions/closures. It works by hooking into Inferno's event system (so make sure the event you are using will use Inferno's event system). This is extremely useful when dealing with events in functional/stateless components. Below is an example:
+`linkEvent()` is a helper function that allows attachment of `props`/`state`/`context` or other data to events without needing to `bind()` them or use arrow functions/closures. This is extremely useful when dealing with events in functional components. Below is an example:
 
 ```jsx
 import Inferno, { linkEvent } from 'inferno';
@@ -405,7 +415,7 @@ class MyComponent extends Component {
 }
 ```
 
-`linkEvent()` offers better performance than binding an event in a class constructor and using arrow functions, so where possible, it should be used.
+`linkEvent()` offers better performance than binding an event in a class constructor and using arrow functions, so use it where possible.
 
 ### `renderToString` (package: `inferno-server`)
 
@@ -418,50 +428,112 @@ InfernoServer.renderToString(<div />);
 
 Render a virtual node into an HTML string, given the supplied virtual DOM.
 
-## Stateless component hooks
+### `options` (package: `inferno`)
 
-| Name                      | Triggered when                                                 | Arguments to callback           |
-| -----------               | --------------                                                 | -----------------------         |
-| `onComponentWillMount`    | a stateless component is about to mount                        |                                 |
-| `onComponentDidMount`     | a stateless component has mounted successfully                 | `domNode`                       |
-| `onComponentShouldUpdate` | a stateless component has been triggered to updated            | `lastProps, nextProps`          |
-| `onComponentWillUpdate`   | a stateless component is about to perform an update            | `lastProps, nextProps`          |
-| `onComponentDidUpdate`    | a stateless component has performed an updated                 | `lastProps, nextProps`          |
-| `onComponentWillUnmount`  | a stateless component is about to be unmounted                 |                                 |
+You can set default options for Inferno using `Inferno.options`. Below are the following options:
 
-### Using hooks
+#### - `findDOMNodeEnabled` (default: `false`)
 
-It's simple to implicitly assign hooks to both DOM nodes and stateless components.
-Please note: stateful components (ES2015 classes) from `inferno-component` **do not** support hooks.
+This enables `findDOMNode()`. We strongly recommend against using this API as it introduces a significant impact to performance. In the future this API command will be removed, along with `findDOMNode()`;
+
+#### - `recyclingEnabled` (default: `true`)
+
+This enables DOM node recycling within Inferno, so that DOM nodes are re-used upon disposal. It can have significant performance benefits, but may also cause side-effects with custom elements.
+
+## Functional component lifecycle events
+
+| Name                      | Triggered when                                                  | Arguments to callback           |
+| -----------               | --------------                                                  | -----------------------         |
+| `onComponentWillMount`    | a functional component is about to mount                        |                                 |
+| `onComponentDidMount`     | a functional component has mounted successfully                 | `domNode`                       |
+| `onComponentShouldUpdate` | a functional component has been triggered to updated            | `lastProps, nextProps`          |
+| `onComponentWillUpdate`   | a functional component is about to perform an update            | `lastProps, nextProps`          |
+| `onComponentDidUpdate`    | a functional component has performed an updated                 | `lastProps, nextProps`          |
+| `onComponentWillUnmount`  | a functional component is about to be unmounted                 | `domNode`                       |
+
+### Using functional lifecycle events
+
+Functional lifecycle events must be explicitly assigned via props onto a functional component like shown below:
 
 ```javascript
 function mounted(domNode) {
     // [domNode] will be available for DOM nodes and components (if the component has mounted to the DOM)
 }
 
-function StatelessComponent({ props }) {
+function FunctionalComponent({ props }) {
 	return <div>Hello world</div>;
 }
 
-Inferno.render(<StatelessComponent onComponentDidMount={ mounted } />, document.body);
+Inferno.render(<FunctionalComponent onComponentDidMount={ mounted } />, document.body);
 ```
 
-Hooks provide powerful lifecycle events to stateless components, allowing you to build components without being forced to use ES2015 classes.
+Please note: class components (ES2015 classes) from `inferno-component` **do not** support the same lifecycle events (they have their own lifecycle events that work as methods on the class itself).
+
+## Development vs Production modes
+
+By default, Inferno will run in development mode. Development mode provides extra checks and better error messages at the cost of slower performance and larger code to parse.
+When using Inferno in a production environment, it is highly recommended that you turn off development mode.
+
+### Running Inferno on Node JS
+
+Ensure the environment variable `process.env.NODE_ENV` is set to `production`.
+
+### Building Inferno for use in a browser
+
+When running Inferno on the browser using Webpack or Rollup, a replacement will need to occur during your build.
+
+#### Webpack
+
+Use the following configuration in your Webpack build:
+
+```js
+  ...
+	plugins: [
+    new webpack.DefinePlugin({
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
+    })
+  ]
+```
+
+#### Rollup
+
+Use the following configuration in your Rollup build:
+
+```js
+const replace = require('rollup-plugin-replace');
+```
+
+```js
+  ...
+	plugins: [
+		replace({
+			'process.env.NODE_ENV': JSON.stringify('production'),
+		})
+  ]
+```
 
 ## Browser Support
 
 Inferno supports IE11+, Edge, Chrome, Firefox and Safari 8+. In order to support IE8+, Inferno requires polyfills for the following JavaScript features:
 
+- [Promise object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 - [Map object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)
 - [WeakMap object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap)
 - [Object.keys](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/keys)
 - [Object.assign](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
 
-Potential solutions including using the [es5-shim](https://github.com/es-shims/es5-shim) for ES5 features and [es6-shim](https://github.com/paulmillr/es6-shim) from ES2015 features.
+Potential solutions include using the [es5-shim](https://github.com/es-shims/es5-shim) for ES5 features and [es6-shim](https://github.com/paulmillr/es6-shim) from ES2015 features.
+
+As a quick drop-in solution, you may also use the [Polyfill.io](https://polyfill.io) service to pull in the required polyfills for the user's browser automatically by including the following line in your page:
+```
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise,Map,WeakMap,Object.keys,Object.assign"></script>
+```
 
 ### Custom namespaces
 
-Inferno wants to always deliver great performance and in order to do so, it has to make intelligent assumptions about the state of the DOM and the elements available to mutate. Custom namespaces conflict with this idea and change the schema of how different elements and attributes might work; so Inferno makes no attempt to support namespaces. Instead, SVG namespaces are automatically applied to elements and attributes based on their `tag name`.
+Inferno wants to always deliver great performance. In order to do so, it has to make intelligent assumptions about the state of the DOM and the elements available to mutate. Custom namespaces conflict with this idea and change the schema of how different elements and attributes might work, so Inferno makes no attempt to support namespaces. Instead, SVG namespaces are automatically applied to elements and attributes based on their `tag name`.
 
 ## Community
 
@@ -470,3 +542,5 @@ There is an [Inferno Slack](https://infernojs.slack.com). You can join via [infe
 ### Inferno is supported by BrowserStack
 
 <img src="http://infernojs.org/browserstack.svg" height="50px" alt="Supported by Browserstack" />
+<img src="https://saucelabs.com/content/images/logo@3x.png" height="50px" alt="Supported by Sauce Labs" />
+<img src="https://www.digitalocean.com/assets/media/logos-badges/png/DO_Powered_by_Badge_black-a35c64eb.png" height="50px" alt="Supported by Digital Ocean" />

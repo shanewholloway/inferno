@@ -1,13 +1,12 @@
 import { expect } from 'chai';
-import renderToString from '../../server/renderToString';
+import { createVNode, render } from 'inferno';
 import Component from 'inferno-component';
+import renderToString from '../../server/renderToString';
 import {
 	createContainerWithHTML,
 	innerHTML,
 	validateNodeTree
 } from '../../tools/utils';
-import Inferno, { render } from 'inferno';
-Inferno; // suppress ts 'never used' error
 
 function Comp1() {
 	return <span>Worked!</span>;
@@ -25,6 +24,12 @@ class Comp3 extends Component<any, any> {
 
 function Comp4({ children }) {
 	return <section>{children}</section>;
+}
+
+class Comp5 extends Component<any, any> {
+	render() {
+		return null;
+	}
 }
 
 describe('SSR Hydration - (JSX)', () => {
@@ -101,7 +106,7 @@ describe('SSR Hydration - (JSX)', () => {
 			expect2: '<div><span>Worked!</span></div>'
 		},
 		{
-			node: <div className='test'><Comp1 /></div>,
+			node: <div className="test"><Comp1 /></div>,
 			expect1: '<div class="test"><span>Worked!</span></div>',
 			expect2: '<div class="test"><span>Worked!</span></div>'
 		},
@@ -182,11 +187,11 @@ describe('SSR Hydration - (JSX)', () => {
 			expect3: '<div><span>Worked!</span></div>'
 		},
 		{
-			node: <div className='test'><Comp1 /></div>,
+			node: <div className="test"><Comp1 /></div>,
 			expect1: '<div class="test"><span>Worked!</span></div>',
-			node2: <div className='test'><Comp2 /></div>,
+			node2: <div className="test"><Comp2 /></div>,
 			expect2: '<div class="test"><em>Worked 2!</em></div>',
-			node3: <div className='test'><Comp1 /></div>,
+			node3: <div className="test"><Comp1 /></div>,
 			expect3: '<div class="test"><span>Worked!</span></div>'
 		},
 		{
@@ -204,6 +209,14 @@ describe('SSR Hydration - (JSX)', () => {
 			expect2: '<div><span>Worked!</span><em>Works <span>again</span>!</em></div>',
 			node3: <div><Comp3 /></div>,
 			expect3: '<div><em>Works <span>again</span>!</em></div>'
+		},
+		{
+			node: <div><Comp5 /></div>,
+			expect1: '<div><!--!--></div>',
+			node2: <div><Comp5 /><Comp3 /><Comp5 /></div>,
+			expect2: '<div><em>Works <span>again</span>!</em></div>',
+			node3: <div><Comp5 /></div>,
+			expect3: '<div></div>'
 		}
 	].forEach(({ node, expect1, node2, node3, expect2, expect3 }, i) => {
 		it(`Update various structures #${ (i + 1) }`, () => {
@@ -220,5 +233,49 @@ describe('SSR Hydration - (JSX)', () => {
 			expect(validateNodeTree(node3)).to.equal(true);
 			expect(container.innerHTML).to.equal(expect3);
 		});
+	});
+
+	it('should rebuild and patch from existing DOM content', () => {
+		const container = document.createElement('div');
+		const vNode = createVNode(2, 'div', { className: 'example' }, 'Hello world!');
+
+		container.innerHTML = '<h1><div>Existing DOM content</div></h1>';
+		render(vNode, container);
+		expect(container.innerHTML).to.equal(innerHTML('<div class="example">Hello world!</div>'));
+	});
+
+	it('should rebuild and patch from existing DOM content (whitespace) ', () => {
+		const container = document.createElement('div');
+		const vNode = createVNode(2, 'div', { className: 'example' }, 'Hello world!');
+
+		container.appendChild(document.createTextNode(''));
+		container.appendChild(document.createElement('h1'));
+		container.appendChild(document.createTextNode(''));
+		render(vNode, container);
+		expect(container.innerHTML).to.equal(innerHTML('<div class="example">Hello world!</div>'));
+	});
+
+	it('should rebuild and patch from existing DOM content #2', () => {
+		const container = document.createElement('div');
+		const vNode = createVNode(2, 'div', { className: 'example' }, [
+			createVNode(2, 'div', null, 'Item 1'),
+			createVNode(2, 'div', null, 'Item 2')
+		]);
+
+		container.innerHTML = '<h1><div>Existing DOM content</div><div>Existing DOM content</div><div>Existing DOM content</div></h1><div>Existing DOM content</div>';
+		render(vNode, container);
+		expect(container.innerHTML).to.equal(innerHTML('<div class="example"><div>Item 1</div><div>Item 2</div></div>'));
+	});
+
+	it('should rebuild and patch from existing DOM content #3', () => {
+		const container = document.createElement('div');
+		const vNode = createVNode(2, 'div', { className: 'example' }, [
+			createVNode(2, 'div', null, 'Item 1'),
+			createVNode(2, 'div', null, 'Item 2')
+		]);
+
+		container.innerHTML = '<div><div>Existing DOM content</div><div>Existing DOM content</div><div>Existing DOM content</div></div>';
+		render(vNode, container);
+		expect(container.innerHTML).to.equal(innerHTML('<div class="example"><div>Item 1</div><div>Item 2</div></div>'));
 	});
 });

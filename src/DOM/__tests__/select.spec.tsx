@@ -1,7 +1,6 @@
 import { expect } from 'chai';
+import { render } from 'inferno';
 import { innerHTML } from '../../tools/utils';
-import Inferno, { render } from 'inferno';
-Inferno; // suppress ts 'never used' error
 
 describe('Select / select multiple (JSX)', () => {
 	let container;
@@ -65,20 +64,20 @@ describe('Select / select multiple (JSX)', () => {
 
 	it('should render "select" boolean on select options #2', () => {
 		render(<select multiple={ true } value={ {} }>
-			<option value='foo'>foo</option>
-			<option value='bar'>bar</option>
+			<option value="foo">foo</option>
+			<option value="bar">bar</option>
 		</select>, container);
 		render(<select multiple={ true } value={ null }>
-			<option value='foo'>foo</option>
-			<option value='bar'>bar</option>
+			<option value="foo">foo</option>
+			<option value="bar">bar</option>
 		</select>, container);
 		render(<select multiple={ true } value={ undefined }>
-			<option value='foo'>foo</option>
-			<option value='bar'>bar</option>
+			<option value="foo">foo</option>
+			<option value="bar">bar</option>
 		</select>, container);
 		render(<select multiple={ true } value={ 'foo' }>
-			<option value='foo'>foo</option>
-			<option value='bar'>bar</option>
+			<option value="foo">foo</option>
+			<option value="bar">bar</option>
 		</select>, container);
 		expect(container.firstChild.children[0].selected).to.eql(true);
 		expect(container.firstChild.children[1].selected).to.eql(false);
@@ -88,12 +87,12 @@ describe('Select / select multiple (JSX)', () => {
 			innerHTML('<select multiple=""><option value="foo">foo</option><option value="bar">bar</option></select>')
 		);
 		render(<select multiple={ true } value={ undefined }>
-			<option value='foo'>foo</option>
-			<option value='bar'>bar</option>
+			<option value="foo">foo</option>
+			<option value="bar">bar</option>
 		</select>, container);
 		render(<select multiple={ true } value={ null }>
-			<option value='foo'>foo</option>
-			<option value='bar'>bar</option>
+			<option value="foo">foo</option>
+			<option value="bar">bar</option>
 		</select>, container);
 		expect(container.firstChild.children[0].selected).to.eql(false);
 		expect(container.firstChild.children[1].selected).to.eql(false);
@@ -104,8 +103,8 @@ describe('Select / select multiple (JSX)', () => {
 		);
 
 		render(<select multiple={ true } value={ 'bar' }>
-			<option value='foo'>foo</option>
-			<option value='bar'>bar</option>
+			<option value="foo">foo</option>
+			<option value="bar">bar</option>
 		</select>, container);
 		expect(container.firstChild.children[0].selected).to.eql(false);
 		expect(container.firstChild.children[1].selected).to.eql(true);
@@ -116,25 +115,80 @@ describe('Select / select multiple (JSX)', () => {
 		);
 	});
 
+	it('should populate the value attribute on select multiple using groups', () => {
+		const template = (val) => <select	multiple={ true }	value={ val }>
+			<optgroup label="foo-group">
+				<option value="foo"/>
+			</optgroup>
+			<optgroup label="bar-group" disabled>
+				<option value="bar"/>
+			</optgroup>
+		</select>;
+
+		// render(template(undefined), container);
+		render(template([ 'foo', 'bar' ]), container);
+
+		expect(container.firstChild.children[ 0 ].disabled).to.eql(false);
+		expect(container.firstChild.children[ 1 ].disabled).to.eql(true);
+
+		expect(container.firstChild.childNodes[ 0 ].innerHTML).to.eql('<option value="foo"></option>');
+		expect(container.firstChild.childNodes[ 1 ].innerHTML).to.eql('<option value="bar"></option>');
+
+		expect(container.firstChild.children[ 0 ].children[ 0 ].selected).to.eql(true);
+		expect(container.firstChild.children[ 1 ].children[ 0 ].selected).to.eql(true);
+
+		render(template([]), container);
+
+		expect(container.firstChild.childNodes[ 0 ].innerHTML).to.eql('<option value="foo"></option>');
+		expect(container.firstChild.childNodes[ 1 ].innerHTML).to.eql('<option value="bar"></option>');
+
+		expect(container.firstChild.children[ 0 ].children[ 0 ].selected).to.eql(false);
+		expect(container.firstChild.children[ 1 ].children[ 0 ].selected).to.eql(false);
+
+		render(template('foo'), container);
+
+		expect(container.firstChild.childNodes[ 0 ].innerHTML).to.eql('<option value="foo"></option>');
+		expect(container.firstChild.childNodes[ 1 ].innerHTML).to.eql('<option value="bar"></option>');
+
+		expect(container.firstChild.children[ 0 ].children[ 0 ].selected).to.eql(true);
+		expect(container.firstChild.children[ 1 ].children[ 0 ].selected).to.eql(false);
+
+		render(template('bar'), container);
+
+		expect(container.firstChild.childNodes[ 0 ].innerHTML).to.eql('<option value="foo"></option>');
+		expect(container.firstChild.childNodes[ 1 ].innerHTML).to.eql('<option value="bar"></option>');
+
+		expect(container.firstChild.children[ 0 ].children[ 0 ].selected).to.eql(false);
+		expect(container.firstChild.children[ 1 ].children[ 0 ].selected).to.eql(true);
+
+		render(template(null), container);
+
+		expect(container.firstChild.childNodes[ 0 ].innerHTML).to.eql('<option value="foo"></option>');
+		expect(container.firstChild.childNodes[ 1 ].innerHTML).to.eql('<option value="bar"></option>');
+
+		expect(container.firstChild.children[ 0 ].children[ 0 ].selected).to.eql(false);
+		expect(container.firstChild.children[ 1 ].children[ 0 ].selected).to.eql(false);
+	});
+
 	it('should render "select" boolean on select options #3', () => {
 		render(<select multiple={ true } value={ 'foo' }>
-			<option value='foo'>foo</option>
-			<option value='bar'>bar</option>
+			<option value="foo">foo</option>
+			<option value="bar">bar</option>
 		</select>, container);
 		expect(container.firstChild.children[0].selected).to.eql(true);
 		expect(container.firstChild.children[1].selected).to.eql(false);
 		expect(
 			container.innerHTML
 		).to.equal(
-			innerHTML('<select multiple=""><option value="foo">foo</option><option value="bar">bar</option></select>')// Missing selected markup
+			innerHTML('<select multiple=""><option value="foo">foo</option><option value="bar">bar</option></select>') // Missing selected markup
 		);
 	});
 
 	it('should render "select" boolean on select options #1', () => {
 
 		render(<select multiple={ true } value={ 'foo' }>
-			<option value='foo'>foo</option>
-			<option value='bar'>bar</option>
+			<option value="foo">foo</option>
+			<option value="bar">bar</option>
 		</select>, container);
 
 		expect(container.firstChild.children[0].selected).to.eql(true);
@@ -146,8 +200,8 @@ describe('Select / select multiple (JSX)', () => {
 		);
 
 		render(<select multiple={ true } value={ undefined }>
-			<option value='foo'>foo</option>
-			<option value='bar'>bar</option>
+			<option value="foo">foo</option>
+			<option value="bar">bar</option>
 		</select>, container);
 
 		expect(container.firstChild.children[0].selected).to.eql(false);
@@ -202,10 +256,10 @@ describe('Select / select multiple (JSX)', () => {
 
 	it('should handle when multiple options with selected set', () => {
 		render(<select multiple={ true }>
-			<option value='a' selected={ true }>a</option>
-			<option value='b' selected={ true }>b</option>
-			<option value='c' selected={ true }>c</option>
-			<option value='d'>d</option>
+			<option value="a" selected={ true }>a</option>
+			<option value="b" selected={ true }>b</option>
+			<option value="c" selected={ true }>c</option>
+			<option value="d">d</option>
 		</select>, container);
 
 		expect(container.firstChild.children[0].selected).to.eql(true);
@@ -217,5 +271,10 @@ describe('Select / select multiple (JSX)', () => {
 		).to.equal(
 			innerHTML('<select multiple=""><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option></select>')
 		);
+	});
+
+	it('Should render empty select', () => {
+		render(<select></select>, container);
+		expect(container.innerHTML).to.eql(innerHTML('<select></select>'));
 	});
 });

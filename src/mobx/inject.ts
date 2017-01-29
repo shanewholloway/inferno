@@ -1,4 +1,4 @@
-import { IProps } from '../core/shapes';
+import { IProps } from '../core/structures';
 import createClass from 'inferno-create-class';
 import createElement from 'inferno-create-element';
 import hoistStatics from 'hoist-non-inferno-statics';
@@ -21,7 +21,7 @@ const proxiedInjectorProps = {
 			return injectorContextTypes;
 		},
 		set() {
-			console.warn("Mobx Injector: you are trying to attach `contextTypes` on an component decorated with `inject` (or `observer`) HOC. Please specify the contextTypes on the wrapped component instead. It is accessible through the `wrappedComponent`");
+			console.warn('Mobx Injector: you are trying to attach `contextTypes` on an component decorated with `inject` (or `observer`) HOC. Please specify the contextTypes on the wrapped component instead. It is accessible through the `wrappedComponent`');
 		},
 		configurable: true,
 		enumerable: false
@@ -38,9 +38,9 @@ const proxiedInjectorProps = {
  * Store Injection
  */
 function createStoreInjector(grabStoresFn, component, injectNames?) {
-	let displayName = "inject-" + (component.displayName || component.name || (component.constructor && component.constructor.name) || "Unknown");
+	let displayName = 'inject-' + (component.displayName || component.name || (component.constructor && component.constructor.name) || 'Unknown');
 	if (injectNames) {
-		displayName += "-with-" + injectNames;
+		displayName += `-with-${injectNames}`;
 	}
 
 	const Injector = createClass({
@@ -104,7 +104,7 @@ const grabStoresByName = (storeNames) => (baseStores, nextProps) => {
  */
 export default function inject(grabStoresFn?: Function | string) {
 
-	if (typeof arguments[0] === "function") {
+	if (typeof arguments[0] === 'function') {
 		grabStoresFn = arguments[0];
 
 		return (componentClass) => {
@@ -125,6 +125,6 @@ export default function inject(grabStoresFn?: Function | string) {
 		}
 		grabStoresFn = grabStoresByName(storeNames);
 
-		return (componentClass) => createStoreInjector(grabStoresFn, componentClass, storeNames.join("-"));
+		return (componentClass) => createStoreInjector(grabStoresFn, componentClass, storeNames.join('-'));
 	}
 }

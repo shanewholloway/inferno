@@ -1,23 +1,21 @@
-import { InfernoInput, VNode } from '../core/shapes';
 import {
-	NO_OP,
 	isBrowser,
 	isInvalid,
 	isNull,
 	isNullOrUndef,
+	Lifecycle,
+	NO_OP,
 	throwError,
-} from '../shared';
-import {
-	devToolsStatus,
-	sendRoots,
-} from './devtools';
+	warning
+} from 'inferno-helpers';
 
-import Lifecycle from './lifecycle';
-import cloneVNode from '../factories/cloneVNode';
+import options from '../core/options';
+import { cloneVNode } from '../core/VNodes';
 import hydrateRoot from './hydration';
 import { mount } from './mounting';
 import { patch } from './patching';
 import { unmount } from './unmounting';
+import { EMPTY_OBJ } from '../../packages/inferno-helpers/dist-es/index';
 
 interface Root {
 	dom: Node | SVGAElement;
@@ -30,16 +28,13 @@ interface Root {
 // in performance is huge: https://esbench.com/bench/5802a691330ab09900a1a2da
 export const roots: Root[] = [];
 export const componentToDOMNodeMap = new Map();
-export let findDOMNodeEnabled = false;
 
-export function enableFindDOMNode() {
-	findDOMNodeEnabled = true;
-}
+options.roots = roots;
 
 export function findDOMNode(ref) {
-	if (!findDOMNodeEnabled) {
+	if (!options.findDOMNodeEnabled) {
 		if (process.env.NODE_ENV !== 'production') {
-			throwError('findDOMNode() has been disabled, use enableFindDOMNode() enabled findDOMNode(). Warning this can significantly impact performance!');
+			throwError('findDOMNode() has been disabled, use Inferno.options.findDOMNodeEnabled = true; enabled findDOMNode(). Warning this can significantly impact performance!');
 		}
 		throwError();
 	}
@@ -59,15 +54,18 @@ function getRoot(dom): Root | null {
 	return null;
 }
 
-function setRoot(dom, input, lifecycle): void {
-	roots.push({
+function setRoot(dom: Node | SVGAElement, input: InfernoInput, lifecycle: Lifecycle): Root {
+	const root: Root = {
 		dom,
 		input,
 		lifecycle
-	});
+	};
+
+	roots.push(root);
+	return root;
 }
 
-function removeRoot(root): void {
+function removeRoot(root: Root): void {
 	for (let i = 0; i < roots.length; i++) {
 		if (roots[i] === root) {
 			roots.splice(i, 1);
@@ -76,9 +74,15 @@ function removeRoot(root): void {
 	}
 }
 
+if (process.env.NODE_ENV !== 'production') {
+	if (isBrowser && document.body === null) {
+		warning('Inferno warning: you cannot initialize inferno without "document.body". Wait on "DOMContentLoaded" event, add script to bottom of body, or use async/defer attributes on script tag.');
+	}
+}
+
 const documentBody = isBrowser ? document.body : null;
 
-export function render(input: InfernoInput, parentDom?: Node | SVGAElement) {
+export function render(input: InfernoInput, parentDom?: Element | SVGAElement): InfernoChildren {
 	if (documentBody === parentDom) {
 		if (process.env.NODE_ENV !== 'production') {
 			throwError('you cannot render() to the "document.body". Use an empty element as a container instead.');
@@ -88,39 +92,43 @@ export function render(input: InfernoInput, parentDom?: Node | SVGAElement) {
 	if ((input as any) === NO_OP) {
 		return;
 	}
-	const root = getRoot(parentDom);
+	let root = getRoot(parentDom);
 
 	if (isNull(root)) {
 		const lifecycle = new Lifecycle();
 
 		if (!isInvalid(input)) {
 			if ((input as VNode).dom) {
-				input = cloneVNode(input);
+				input = cloneVNode(input as VNode);
 			}
 			if (!hydrateRoot(input, parentDom, lifecycle)) {
-				mount(input, parentDom, lifecycle, {}, false);
+				mount(input as VNode, parentDom, lifecycle, EMPTY_OBJ, false);
 			}
+			root = setRoot(parentDom, input, lifecycle);
 			lifecycle.trigger();
-			setRoot(parentDom, input, lifecycle);
 		}
 	} else {
 		const lifecycle = root.lifecycle;
 
 		lifecycle.listeners = [];
 		if (isNullOrUndef(input)) {
-			unmount(root.input, parentDom, lifecycle, false, false, false);
+			unmount(root.input as VNode, parentDom, lifecycle, false, false);
 			removeRoot(root);
 		} else {
 			if ((input as VNode).dom) {
-				input = cloneVNode(input);
+				input = cloneVNode(input as VNode);
 			}
-			patch(root.input, input, parentDom, lifecycle, {}, false, false);
+			patch(root.input as VNode, input as VNode, parentDom, lifecycle, EMPTY_OBJ, false, false);
 		}
 		lifecycle.trigger();
 		root.input = input;
 	}
-	if (devToolsStatus.connected) {
-		sendRoots(window);
+	if (root) {
+		const rootInput: VNode = root.input as VNode;
+
+		if (rootInput && (rootInput.flags & VNodeFlags.Component)) {
+			return rootInput.children;
+		}
 	}
 }
 

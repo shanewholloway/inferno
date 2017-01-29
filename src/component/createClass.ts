@@ -1,4 +1,4 @@
-import { isFunction, isNullOrUndef, isUndefined } from '../shared';
+import { isFunction, isNullOrUndef, isUndefined } from 'inferno-helpers';
 
 import Component from 'inferno-component';
 import { ComponentSpec } from './es2015';
@@ -35,7 +35,7 @@ function bindAll(ctx) {
 	}
 }
 
-function collateMixins(mixins, keyed = {}) {
+function collateMixins(mixins: Function[] | any[], keyed = {}): any {
 	for (let i = 0; i < mixins.length; i++) {
 		const mixin = mixins[i];
 
@@ -45,7 +45,7 @@ function collateMixins(mixins, keyed = {}) {
 			collateMixins(mixin.mixins, keyed);
 		}
 
-		for (let key in mixin) {
+		for (let key in mixin as Function[]) {
 			if (mixin.hasOwnProperty(key) && typeof mixin[key] === 'function') {
 				(keyed[key] || (keyed[key] = [])).push(mixin[key]);
 			}
@@ -54,10 +54,10 @@ function collateMixins(mixins, keyed = {}) {
 	return keyed;
 }
 
-function applyMixin(key, inst, mixin) {
+function applyMixin<P, S>(key: string, inst: Component<P, S>, mixin: Function[] | Function): any {
 	const original = inst[key];
 
-	inst[key] = function () {
+	inst[key] = function() {
 		let ret;
 
 		for (let i = 0; i < mixin.length; i++) {
@@ -79,7 +79,7 @@ function applyMixin(key, inst, mixin) {
 	};
 }
 
-function applyMixins(inst, mixins) {
+function applyMixins<P, S>(inst: Component<P, S>, mixins: Function[] | any[]) {
 	for (let key in mixins) {
 		if (mixins.hasOwnProperty(key)) {
 			const mixin = mixins[key];
@@ -100,8 +100,8 @@ export default function createClass<P, S>(obj: ComponentSpec<P, S>) {
 		static defaultProps = obj.getDefaultProps ? obj.getDefaultProps() : undefined;
 		static mixins = obj.mixins && collateMixins(obj.mixins);
 
-		constructor(props) {
-			super(props);
+		constructor(props, context) {
+			super(props, context);
 			extend(this, obj);
 			if (Cl.mixins) {
 				applyMixins(this, Cl.mixins);
@@ -112,7 +112,9 @@ export default function createClass<P, S>(obj: ComponentSpec<P, S>) {
 			}
 		}
 
-		public isMounted = function() { return !this._unmounted; };
+		public isMounted = function(): boolean {
+			return !this._unmounted;
+		};
 	}
 	if (obj.statics) {
 		extend(Cl, obj.statics);

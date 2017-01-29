@@ -1,7 +1,6 @@
 import { expect } from 'chai';
+import { render } from 'inferno';
 import Component from 'inferno-component';
-import Inferno, { render } from 'inferno';
-Inferno; // suppress ts 'never used' error
 
 describe('FormElements', () => {
 	let container;
@@ -139,7 +138,7 @@ describe('FormElements', () => {
 
 			it('Should pre select option by value', () => {
 				render(<SelectList value="B"/>, container);
-				let selectList = container.querySelector('select');
+				const selectList = container.querySelector('select');
 				expect(selectList.childNodes[0].selected).to.equal(false);
 				expect(selectList.childNodes[1].selected).to.equal(true);
 				expect(selectList.childNodes[2].selected).to.equal(false);
@@ -195,7 +194,7 @@ describe('FormElements', () => {
 				}
 			}
 
-			it('Should pre select option by value on update', () => {
+			it('Should pre select option by value on update', (done) => {
 				render(<SelectList />, container);
 				let selectList = container.querySelector('select');
 				expect(selectList.childNodes[0].selected).to.equal(true);
@@ -203,10 +202,13 @@ describe('FormElements', () => {
 				expect(selectList.childNodes[2].selected).to.equal(false);
 
 				updater({ value: 'B' });
-				selectList = container.querySelector('select');
-				expect(selectList.childNodes[0].selected).to.equal(false);
-				expect(selectList.childNodes[1].selected).to.equal(true);
-				expect(selectList.childNodes[2].selected).to.equal(false);
+				setTimeout(() => {
+					selectList = container.querySelector('select');
+					expect(selectList.childNodes[0].selected).to.equal(false);
+					expect(selectList.childNodes[1].selected).to.equal(true);
+					expect(selectList.childNodes[2].selected).to.equal(false);
+					done();
+				}, 10);
 			});
 		});
 	});

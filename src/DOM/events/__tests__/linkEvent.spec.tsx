@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import Inferno, { render, linkEvent } from 'inferno';
+import { linkEvent, render } from 'inferno';
 import Component from 'inferno-component';
-Inferno;
 
 describe('linkEvent', () => {
 	let container;
@@ -45,13 +44,45 @@ describe('linkEvent', () => {
 		});
 	});
 
+	describe('linkEvent on a button (onclick) - no delegation', () => {
+		let test;
+
+		function handleOnClick(props) {
+			test = props.test;
+		}
+		function FunctionalComponent(props) {
+			return <button onclick={ linkEvent(props, handleOnClick) } />;
+		}
+
+		class StatefulComponent extends Component<any, any> {
+			render() {
+				return <button onclick={ linkEvent(this.props, handleOnClick) } />;
+			}
+		}
+
+		it('should work correctly for functional components', () => {
+			render(<FunctionalComponent test="123"/>, container);
+			container.querySelector('button').click();
+			expect(test).to.equal('123');
+		});
+
+		it('should work correctly for stateful components', () => {
+			render(<StatefulComponent test="456"/>, container);
+			container.querySelector('button').click();
+			expect(test).to.equal('456');
+		});
+	});
+
 	describe('linkEvent on a input (onInput)', () => {
 		let test;
 		let event;
 
 		function simulateInput(elm, text) {
 			if (typeof Event !== 'undefined') {
-				elm.dispatchEvent(new Event('input'));
+				const newEvent = document.createEvent('Event');
+				newEvent.initEvent('input', true, true);
+
+				elm.dispatchEvent(newEvent);
 			} else {
 				elm.oninput({
 					target: elm

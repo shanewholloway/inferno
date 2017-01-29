@@ -1,8 +1,7 @@
 import { expect } from 'chai';
+import { render } from 'inferno';
 import Component from 'inferno-component';
 import { innerHTML } from '../../tools/utils';
-import Inferno, { render } from 'inferno';
-Inferno; // suppress ts 'never used' error
 
 describe('Blueprints (JSX)', () => {
 	let container;
@@ -88,7 +87,7 @@ describe('Blueprints (JSX)', () => {
 		it('Second render (update)', (done) => {
 			render(<Wrapper/>, container);
 			const buttons = Array.prototype.slice.call(container.querySelectorAll('button'));
-			buttons.forEach(button => button.click());
+			buttons.forEach((button) => button.click());
 
 			// requestAnimationFrame is needed here because
 			// setState fires after a requestAnimationFrame
@@ -105,7 +104,7 @@ describe('Blueprints (JSX)', () => {
 	});
 
 	describe('Infinite loop issue', () => {
-		it('Should not get stuck when doing setState from ref callback', () => {
+		it('Should not get stuck when doing setState from ref callback', (done) => {
 			class A extends Component<any, any> {
 				props: any;
 
@@ -142,7 +141,10 @@ describe('Blueprints (JSX)', () => {
 			render(<A />, container);
 
 			render(<A open={true}/>, container);
-			expect(container.innerHTML).to.equal(innerHTML('<div>animate</div>'));
+			setTimeout(() => {
+				expect(container.innerHTML).to.equal(innerHTML('<div>animate</div>'));
+				done();
+			}, 10);
 		});
 	});
 

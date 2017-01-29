@@ -1,9 +1,8 @@
 import { expect } from 'chai';
-import { spy } from 'sinon';
+import { render } from 'inferno';
 import Component from 'inferno-component';
-import { isNullOrUndef } from '../../shared';
-import Inferno, { render } from 'inferno';
-Inferno; // suppress ts 'never used' error
+import { isNullOrUndef } from 'inferno-helpers';
+import { spy } from 'sinon';
 
 describe('Columns like tests - (JSX)', () => {
 	let container;
@@ -142,7 +141,7 @@ describe('Columns like tests - (JSX)', () => {
 				// Verify items
 				// Skip first - its hardcoded
 				for (let j = 1; j < columnChildNodes.length; j++) {
-					let itemRoot = columnChildNodes[j];
+					const itemRoot = columnChildNodes[j];
 					expect(itemRoot.innerHTML).to.equal(columns[i].items[j - 1].text.toString(), 'item content check');
 				}
 			}
@@ -182,6 +181,8 @@ describe('Columns like tests - (JSX)', () => {
 					super(props);
 				}
 
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -195,6 +196,8 @@ describe('Columns like tests - (JSX)', () => {
 				constructor(props) {
 					super(props);
 				}
+
+				componentWillUnmount() {}
 
 				render() {
 					const items = this.props.items;
@@ -324,6 +327,8 @@ describe('Columns like tests - (JSX)', () => {
 					super(props);
 				}
 
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -337,6 +342,8 @@ describe('Columns like tests - (JSX)', () => {
 				constructor(props) {
 					super(props);
 				}
+
+				componentWillUnmount() {}
 
 				render() {
 					const items = this.props.items;

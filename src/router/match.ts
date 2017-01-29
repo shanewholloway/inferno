@@ -1,8 +1,8 @@
-import { decode, flatten, getURLString, isEmpty, mapSearchParams, pathRankSort, toPartialURL } from './utils';
-import { isArray, toArray } from '../shared';
+import Inferno from 'inferno';
+import { isArray, toArray } from 'inferno-helpers';
 import pathToRegExp from 'path-to-regexp-es6';
+import { decode, flatten, getURLString, isEmpty, mapSearchParams, pathRankSort, toPartialURL } from './utils';
 
-import * as Inferno from 'inferno';
 const cache: Map<string, IMatchRegex> = new Map();
 
 /**
@@ -21,42 +21,57 @@ export default function match(routes, currentURL: any) {
  * Go through every route and create a new node
  * with the matched components
  * @param _routes
- * @param urlToMatch
+ * @param currentURL
  * @param parentPath
+ * @param redirect
  * @returns {object}
  */
-function matchRoutes(_routes, urlToMatch = '/', parentPath = '/') {
+function matchRoutes(_routes, currentURL = '/', parentPath = '/', redirect = false) {
 
 	const routes = isArray(_routes) ? flatten(_routes) : toArray(_routes);
-	const [pathToMatch = '/', search = ''] = urlToMatch.split('?');
+	const [pathToMatch = '/', search = ''] = currentURL.split('?');
 	const params = mapSearchParams(search);
 
 	routes.sort(pathRankSort);
 
 	for (let i = 0; i < routes.length; i++) {
 		const route = routes[i];
-		const routePath = (route.props && route.props.path || '/');
+		const routePath = route.props.from || route.props.path || '/';
 		const location = parentPath + toPartialURL(routePath, parentPath).replace(/\/\//g, '/');
 		const isLast = !route.props || isEmpty(route.props.children);
 		const matchBase = matchPath(isLast, location, pathToMatch);
 
 		if (matchBase) {
-			let children = null;
-			if (route.props && route.props.children) {
-				const matchChild = matchRoutes(route.props.children, pathToMatch, location);
+			let children = route.props.children;
+
+			if (route.props.from) {
+				redirect = route.props.to;
+			}
+			if (children) {
+				const matchChild = matchRoutes(children, currentURL, location, redirect);
 				if (matchChild) {
+					if (matchChild.redirect) {
+						return {
+							location,
+							redirect: matchChild.redirect
+						};
+					}
 					children = matchChild.matched;
-					Object.assign(params, matchChild.matched.props.params);
+					Object.assign(params, children.props.params);
+				} else {
+					children = null;
 				}
 			}
 
+			const matched = Inferno.cloneVNode(route, {
+				params: Object.assign(params, matchBase.params),
+				children
+			});
+
 			return {
 				location,
-				matched: Inferno.cloneVNode(route, {
-					children,
-					params: Object.assign(params, matchBase.params),
-					component:  route.props.component
-				})
+				redirect,
+				matched
 			};
 		}
 	}
@@ -74,7 +89,7 @@ interface IMatchRegex {
  * @param pathToMatch
  * @returns {any}
  */
-function matchPath(end: boolean, routePath: string, pathToMatch: string): any {
+export function matchPath(end: boolean, routePath: string, pathToMatch: string): any {
 	const key = `${routePath}|${end}`;
 	let regexp: IMatchRegex = cache.get(key);
 

@@ -1,32 +1,25 @@
+import { warning, NO_OP, EMPTY_OBJ } from 'inferno-helpers';
 import {
-	createVNode
-} from '../../../build/core/shapes';
-import cloneVNode from '../../../build/factories/cloneVNode';
-import { warning, NO_OP, isBrowser, EMPTY_OBJ } from '../../../build/shared';
-import { render, findDOMNode, createRenderer, enableFindDOMNode } from '../../../build/DOM/rendering';
-import { disableRecycling } from '../../../build/DOM/recycling';
-import { initDevToolsHooks } from '../../../build/DOM/devtools';
+	createVNode,
+	cloneVNode
+} from '../../../build/core/VNodes';
+import { render, findDOMNode, createRenderer } from '../../../build/DOM/rendering';
 import linkEvent from '../../../build/DOM/events/linkEvent';
-
-if (isBrowser) {
-	window.process = window.process || {}; 
-	window.process.env = window.process.env || {
-		NODE_ENV: 'development'
-	};
-	initDevToolsHooks(window);
-}
+import options from '../../../build/core/options';
 
 if (process.env.NODE_ENV !== 'production') {
-	Object.freeze(EMPTY_OBJ);
 	const testFunc = function testFn() {};
-	warning(
-		(testFunc.name || testFunc.toString()).indexOf('testFn') !== -1,
-		'It looks like you\'re using a minified copy of the development build ' +
-		'of Inferno. When deploying Inferno apps to production, make sure to use ' +
-		'the production build which skips development warnings and is faster. ' +
-		'See http://infernojs.org for more details.'
-	);
+	if ((testFunc.name || testFunc.toString()).indexOf('testFn') === -1) {
+		warning(('It looks like you\'re using a minified copy of the development build ' +
+				'of Inferno. When deploying Inferno apps to production, make sure to use ' +
+				'the production build which skips development warnings and is faster. ' +
+				'See http://infernojs.org for more details.'
+		));
+	}
 }
+
+// This will be replaced by rollup
+const version = 'VERSION';
 
 // we duplicate it so it plays nicely with different module loading systems
 export default {
@@ -41,12 +34,12 @@ export default {
 	NO_OP,
 	EMPTY_OBJ,
 
-	//DOM
+	// DOM
 	render,
 	findDOMNode,
 	createRenderer,
-	disableRecycling,
-	enableFindDOMNode
+	options,
+	version
 };
 
 export {
@@ -61,10 +54,10 @@ export {
 	NO_OP,
 	EMPTY_OBJ,
 
-	//DOM
+	// DOM
 	render,
 	findDOMNode,
 	createRenderer,
-	disableRecycling,
-	enableFindDOMNode
+	options,
+	version
 };

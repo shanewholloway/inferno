@@ -1,9 +1,6 @@
 import { expect } from 'chai';
-import { renderToStaticMarkup } from '../renderToString';
-// import Component from '../../component/es2015';
 import createElement from 'inferno-create-element';
-import Inferno from 'inferno';
-Inferno; // suppress ts 'never used' error
+import { renderToStaticMarkup } from '../renderToString';
 
 /*
 class StatefulComponent extends Component<any, any> {
@@ -81,9 +78,21 @@ describe('SSR Creation (non-JSX)', () => {
 		description: 'should render a div with styles',
 		template: () => createElement('div', { style: { display: 'block', width: '50px' } }),
 		result: '<div style="display:block;width:50px;"></div>'
+	}, {
+		description: 'should ignore null className',
+		template: () => createElement('div', { className: null }),
+		result: '<div></div>'
+	}, {
+		description: 'should ignore undefined className',
+		template: () => createElement('div', { className: undefined }),
+		result: '<div></div>'
+	}, {
+		description: 'should ignore children as props',
+		template: () => createElement('p', {}, 'foo'),
+		result: '<p>foo</p>'
 	}];
 
-	testEntries.forEach(test => {
+	testEntries.forEach((test) => {
 		it(test.description, () => {
 			const container = document.createElement('div');
 			const vDom = test.template('foo');

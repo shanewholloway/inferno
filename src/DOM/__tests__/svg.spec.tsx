@@ -1,7 +1,6 @@
 import { expect } from 'chai';
+import { render } from 'inferno';
 import { innerHTML } from '../../tools/utils';
-import Inferno, { render } from 'inferno';
-Inferno; // suppress ts 'never used' error
 
 describe('createTree - SVG (JSX)', () => {
 
@@ -26,13 +25,13 @@ describe('createTree - SVG (JSX)', () => {
 		render(<svg xmlns="http://www.w3.org/2000/svg">
 			<circle xmlns="http://www.w3.org/2000/svg"/>
 		</svg>, container);
+		expect(innerHTML(container.firstChild.firstChild.tagName)).to.equal('circle');
 		expect(
-			innerHTML(container.innerHTML)
-		).to.equal(
 			innerHTML(
-				'<svg xmlns="http://www.w3.org/2000/svg"><circle xmlns="http://www.w3.org/2000/svg"></circle></svg>'
+				container.firstChild.getAttribute('xmlns')
 			)
-		);
+		).to.equal('http://www.w3.org/2000/svg');
+
 		render(null, container);
 		expect(container.innerHTML).to.equal('');
 	});
@@ -105,7 +104,7 @@ describe('createTree - SVG (JSX)', () => {
 
 	it('should set and remove dynamic class property', () => {
 
-		let value = 'foo';
+		const value = 'foo';
 
 		render(<svg className={ value }/>, container);
 
@@ -121,7 +120,7 @@ describe('createTree - SVG (JSX)', () => {
 
 	it('should set and remove dynamic class attribute', () => {
 
-		let value = 'foo';
+		const value = 'foo';
 
 		render(<svg className={ value }/>, container);
 
@@ -144,7 +143,7 @@ describe('createTree - SVG (JSX)', () => {
 		expect(container.firstChild.tagName).to.eql('svg');
 		expect(container.firstChild.getAttribute('class')).to.equal('bar');
 
-		let value = 'foo';
+		const value = 'foo';
 
 		render(<svg className={ value }/>, container);
 		expect(container.firstChild.tagName).to.eql('svg');

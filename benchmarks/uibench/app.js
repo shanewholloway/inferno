@@ -5,7 +5,7 @@
 	var createVNode = Inferno.createVNode;
 	var linkEvent = Inferno.linkEvent;
 
-	uibench.init('Inferno', '1.0.0-beta33 *dev*');
+	uibench.init('Inferno', Inferno.version);
 
 	var treeLeafProps = { className: 'TreeLeaf' };
 

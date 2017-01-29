@@ -5,36 +5,36 @@ import {
 	isInvalid,
 	isNull,
 	isNullOrUndef,
+	isObject,
 	isStringOrNumber,
 	isUndefined,
-	throwError,
-} from '../shared';
-import { VNodeFlags, isVNode } from '../core/shapes';
+	Lifecycle,
+	throwError
+} from 'inferno-helpers';
 import {
-	appendChild,
-	copyPropsTo,
-	createStatefulComponentInstance,
-	createStatelessComponentInput,
-	documentCreateElement,
-	setTextContent,
-} from './utils';
+	copyPropsTo
+} from '../core/normalization';
+import options from '../core/options';
+import { cloneVNode, isVNode } from '../core/VNodes';
+import {
+	patchEvent,
+	patchProp
+} from './patching';
 import {
 	recycleComponent,
-	recycleElement,
-	recyclingEnabled,
+	recycleElement
 } from './recycling';
-
-import Lifecycle from './lifecycle';
-import cloneVNode from '../factories/cloneVNode';
-import { componentToDOMNodeMap, findDOMNodeEnabled } from './rendering';
-import { devToolsStatus } from './devtools';
+import { componentToDOMNodeMap } from './rendering';
 import {
-	patchProp,
-	patchEvent
-} from './patching';
+	appendChild,
+	createClassComponentInstance,
+	createFunctionalComponentInput,
+	documentCreateElement,
+	setTextContent
+} from './utils';
 import processElement from './wrappers/processElement';
 
-export function mount(vNode, parentDom, lifecycle, context, isSVG) {
+export function mount(vNode: VNode, parentDom: Element, lifecycle: Lifecycle, context: Object, isSVG: boolean) {
 	const flags = vNode.flags;
 
 	if (flags & VNodeFlags.Element) {
@@ -47,34 +47,38 @@ export function mount(vNode, parentDom, lifecycle, context, isSVG) {
 		return mountText(vNode, parentDom);
 	} else {
 		if (process.env.NODE_ENV !== 'production') {
-			throwError(`mount() expects a valid VNode, instead it received an object with the type "${ typeof vNode }".`);
+			if (typeof vNode === 'object') {
+				throwError(`mount() received an object that's not a valid VNode, you should stringify it first. Object: "${ JSON.stringify(vNode) }".`);
+			} else {
+				throwError(`mount() expects a valid VNode, instead it received an object with the type "${ typeof vNode }".`);
+			}
 		}
 		throwError();
 	}
 }
 
-export function mountText(vNode, parentDom) {
-	const dom = document.createTextNode(vNode.children);
+export function mountText(vNode: VNode, parentDom: Element): any {
+	const dom = document.createTextNode(vNode.children as string);
 
-	vNode.dom = dom;
+	vNode.dom = dom as any;
 	if (parentDom) {
 		appendChild(parentDom, dom);
 	}
 	return dom;
 }
 
-export function mountVoid(vNode, parentDom) {
+export function mountVoid(vNode: VNode, parentDom: Element) {
 	const dom = document.createTextNode('');
 
-	vNode.dom = dom;
+	vNode.dom = dom as any;
 	if (parentDom) {
 		appendChild(parentDom, dom);
 	}
 	return dom;
 }
 
-export function mountElement(vNode, parentDom, lifecycle, context, isSVG) {
-	if (recyclingEnabled) {
+export function mountElement(vNode: VNode, parentDom: Element, lifecycle: Lifecycle, context: Object, isSVG: boolean) {
+	if (options.recyclingEnabled) {
 		const dom = recycleElement(vNode, lifecycle, context, isSVG);
 
 		if (!isNull(dom)) {
@@ -99,26 +103,27 @@ export function mountElement(vNode, parentDom, lifecycle, context, isSVG) {
 	vNode.dom = dom;
 	if (!isNull(children)) {
 		if (isStringOrNumber(children)) {
-			setTextContent(dom, children);
+			setTextContent(dom, children as string | number);
 		} else if (isArray(children)) {
 			mountArrayChildren(children, dom, lifecycle, context, isSVG);
-		} else if (isVNode(children)) {
-			mount(children, dom, lifecycle, context, isSVG);
+		} else if (isVNode(children as any)) {
+			mount(children as VNode, dom, lifecycle, context, isSVG);
 		}
 	}
+	let hasControlledValue = false;
 	if (!(flags & VNodeFlags.HtmlElement)) {
-		processElement(flags, vNode, dom);
+		hasControlledValue = processElement(flags, vNode, dom, true);
 	}
 	if (!isNull(props)) {
 		for (let prop in props) {
 			// do not add a hasOwnProperty check here, it affects performance
-			patchProp(prop, null, props[prop], dom, isSVG, lifecycle);
+			patchProp(prop, null, props[prop], dom, isSVG, hasControlledValue);
 		}
 	}
 	if (!isNull(events)) {
 		for (let name in events) {
 			// do not add a hasOwnProperty check here, it affects performance
-			patchEvent(name, null, events[name], dom, lifecycle);
+			patchEvent(name, null, events[name], dom);
 		}
 	}
 	if (!isNull(ref)) {
@@ -130,10 +135,11 @@ export function mountElement(vNode, parentDom, lifecycle, context, isSVG) {
 	return dom;
 }
 
-export function mountArrayChildren(children, dom, lifecycle, context, isSVG) {
+export function mountArrayChildren(children, dom: Element, lifecycle: Lifecycle, context: Object, isSVG: boolean) {
 	for (let i = 0; i < children.length; i++) {
 		let child = children[i];
 
+		// TODO: Verify can string/number be here. might cause de-opt
 		if (!isInvalid(child)) {
 			if (child.dom) {
 				children[i] = child = cloneVNode(child);
@@ -143,8 +149,8 @@ export function mountArrayChildren(children, dom, lifecycle, context, isSVG) {
 	}
 }
 
-export function mountComponent(vNode, parentDom, lifecycle, context, isSVG, isClass) {
-	if (recyclingEnabled) {
+export function mountComponent(vNode: VNode, parentDom: Element, lifecycle: Lifecycle, context: Object, isSVG: boolean, isClass: number) {
+	if (options.recyclingEnabled) {
 		const dom = recycleComponent(vNode, lifecycle, context, isSVG);
 
 		if (!isNull(dom)) {
@@ -155,21 +161,24 @@ export function mountComponent(vNode, parentDom, lifecycle, context, isSVG, isCl
 		}
 	}
 	const type = vNode.type;
-	const props = vNode.props || EMPTY_OBJ;
-	const defaultProps = type.defaultProps;
-	const ref = vNode.ref;
-	let dom;
-
+	const defaultProps = (type as any).defaultProps;
+	let props;
 	if (!isUndefined(defaultProps)) {
+		// When defaultProps are used we need to create new Object
+		props = vNode.props || {};
 		copyPropsTo(defaultProps, props);
 		vNode.props = props;
+	} else {
+		props = vNode.props || EMPTY_OBJ;
 	}
-	if (isClass) {
-		lifecycle.fastUnmount = false;
-		const instance = createStatefulComponentInstance(vNode, type, props, context, isSVG, devToolsStatus);
-		const input = instance._lastInput;
-		const fastUnmount = lifecycle.fastUnmount;
 
+	const ref = vNode.ref;
+	let dom;
+	if (isClass) {
+		const instance = createClassComponentInstance(vNode, type, props, context, isSVG);
+		// If instance does not have componentWillUnmount specified we can enable fastUnmount
+		const input = instance._lastInput;
+		const prevFastUnmount = lifecycle.fastUnmount;
 		// we store the fastUnmount value, but we set it back to true on the lifecycle
 		// we do this so we can determine if the component render has a fastUnmount or not
 		lifecycle.fastUnmount = true;
@@ -178,21 +187,22 @@ export function mountComponent(vNode, parentDom, lifecycle, context, isSVG, isCl
 		// we now create a lifecycle for this component and store the fastUnmount value
 		const subLifecycle = instance._lifecycle = new Lifecycle();
 
-		subLifecycle.fastUnmount = lifecycle.fastUnmount;
-		// we then set the lifecycle fastUnmount value back to what it was before the mount
-		lifecycle.fastUnmount = fastUnmount;
+		// children lifecycle can fastUnmount if itself does need unmount callback and within its cycle there was none
+		subLifecycle.fastUnmount = isUndefined(instance.componentWillUnmount) && lifecycle.fastUnmount;
+		// higher lifecycle can fastUnmount only if previously it was able to and this children doesnt have any
+		lifecycle.fastUnmount = prevFastUnmount && subLifecycle.fastUnmount;
 		if (!isNull(parentDom)) {
 			appendChild(parentDom, dom);
 		}
-		mountStatefulComponentCallbacks(ref, instance, lifecycle);
-		findDOMNodeEnabled && componentToDOMNodeMap.set(instance, dom);
+		mountClassComponentCallbacks(vNode, ref, instance, lifecycle);
+		options.findDOMNodeEnabled && componentToDOMNodeMap.set(instance, dom);
 		vNode.children = instance;
 	} else {
-		const input = createStatelessComponentInput(vNode, type, props, context);
+		const input = createFunctionalComponentInput(vNode, type, props, context);
 
 		vNode.dom = dom = mount(input, null, lifecycle, context, isSVG);
 		vNode.children = input;
-		mountStatelessComponentCallbacks(ref, dom, lifecycle);
+		mountFunctionalComponentCallbacks(ref, dom, lifecycle);
 		if (!isNull(parentDom)) {
 			appendChild(parentDom, dom);
 		}
@@ -200,38 +210,49 @@ export function mountComponent(vNode, parentDom, lifecycle, context, isSVG, isCl
 	return dom;
 }
 
-export function mountStatefulComponentCallbacks(ref, instance, lifecycle) {
+export function mountClassComponentCallbacks(vNode: VNode, ref, instance, lifecycle: Lifecycle) {
 	if (ref) {
 		if (isFunction(ref)) {
 			ref(instance);
 		} else {
 			if (process.env.NODE_ENV !== 'production') {
-				throwError('string "refs" are not supported in Inferno 1.0. Use callback "refs" instead.');
+				if (isStringOrNumber(ref)) {
+					throwError('string "refs" are not supported in Inferno 1.0. Use callback "refs" instead.');
+				} else if (isObject(ref) && (vNode.flags & VNodeFlags.ComponentClass)) {
+					throwError('functional component lifecycle events are not supported on ES2015 class components.');
+				} else {
+					throwError(`a bad value for "ref" was used on component: "${ JSON.stringify(ref) }"`);
+				}
 			}
 			throwError();
 		}
 	}
-	if (!isNull(instance.componentDidMount)) {
+	const cDM = instance.componentDidMount;
+	const afterMount = options.afterMount;
+
+	if (!isUndefined(cDM) || !isNull(afterMount)) {
 		lifecycle.addListener(() => {
-			instance.componentDidMount();
+			afterMount && afterMount(vNode);
+			cDM && instance.componentDidMount();
 		});
 	}
 }
 
-export function mountStatelessComponentCallbacks(ref, dom, lifecycle) {
+export function mountFunctionalComponentCallbacks(ref, dom, lifecycle: Lifecycle) {
 	if (ref) {
 		if (!isNullOrUndef(ref.onComponentWillMount)) {
-			lifecycle.fastUnmount = false;
 			ref.onComponentWillMount();
 		}
 		if (!isNullOrUndef(ref.onComponentDidMount)) {
-			lifecycle.fastUnmount = false;
 			lifecycle.addListener(() => ref.onComponentDidMount(dom));
+		}
+		if (!isNullOrUndef(ref.onComponentWillUnmount)) {
+			lifecycle.fastUnmount = false;
 		}
 	}
 }
 
-export function mountRef(dom, value, lifecycle) {
+export function mountRef(dom: Element, value, lifecycle: Lifecycle) {
 	if (isFunction(value)) {
 		lifecycle.fastUnmount = false;
 		lifecycle.addListener(() => value(dom));

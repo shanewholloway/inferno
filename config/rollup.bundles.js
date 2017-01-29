@@ -1,13 +1,28 @@
-import { Bundles } from './rollup.helpers';
+const { Bundles } = require('./rollup.helpers');
 
 // Methods available: add, skip, only
 const bundles = new Bundles();
 
 bundles.add({
+	moduleGlobal: 'Inferno.Helpers',
+	moduleName: 'inferno-helpers',
+	moduleEntry: 'packages/inferno-helpers/dist-es/index.js',
+	path: 'packages/inferno-helpers/',
+	dest: 'packages/inferno-helpers/dist/'
+});
+
+bundles.add({
+	moduleGlobal: 'Inferno.VNodeFlags',
+	moduleName: 'inferno-vnode-flags',
+	moduleEntry: 'packages/inferno-vnode-flags/dist-es/index.js',
+	path: 'packages/inferno-vnode-flags/',
+	dest: 'packages/inferno-vnode-flags/dist/'
+});
+
+bundles.add({
 	moduleGlobal: 'Inferno',
 	moduleName: 'inferno',
 	moduleEntry: 'packages/inferno/src/index.js',
-	moduleGlobals: {},
 	path: 'packages/inferno/'
 });
 
@@ -16,7 +31,7 @@ bundles.add({
 	moduleName: 'inferno-server',
 	moduleEntry: 'packages/inferno-server/src/index.js',
 	moduleGlobals: {
-		'inferno': 'Inferno'
+		inferno: 'Inferno'
 	},
 	path: 'packages/inferno-server/'
 });
@@ -26,7 +41,7 @@ bundles.add({
 	moduleName: 'inferno-component',
 	moduleEntry: 'packages/inferno-component/src/index.js',
 	moduleGlobals: {
-		'inferno': 'Inferno'
+		inferno: 'Inferno'
 	},
 	path: 'packages/inferno-component/'
 });
@@ -36,7 +51,7 @@ bundles.add({
 	moduleName: 'inferno-test-utils',
 	moduleEntry: 'packages/inferno-test-utils/src/index.js',
 	moduleGlobals: {
-		'inferno': 'Inferno'
+		inferno: 'Inferno'
 	},
 	path: 'packages/inferno-test-utils/'
 });
@@ -46,7 +61,7 @@ bundles.add({
 	moduleName: 'inferno-create-element',
 	moduleEntry: 'packages/inferno-create-element/src/index.js',
 	moduleGlobals: {
-		'inferno': 'Inferno'
+		inferno: 'Inferno'
 	},
 	path: 'packages/inferno-create-element/'
 });
@@ -56,7 +71,7 @@ bundles.add({
 	moduleName: 'inferno-compat',
 	moduleEntry: 'packages/inferno-compat/src/index.js',
 	moduleGlobals: {
-		'inferno': 'Inferno',
+		inferno: 'Inferno',
 		'inferno-component': 'Inferno.Component'
 	},
 	path: 'packages/inferno-compat/'
@@ -67,7 +82,7 @@ bundles.add({
 	moduleName: 'inferno-router',
 	moduleEntry: 'packages/inferno-router/src/index.js',
 	moduleGlobals: {
-		'inferno': 'Inferno',
+		inferno: 'Inferno',
 		'inferno-component': 'Inferno.Component',
 		'inferno-create-element': 'Inferno.createElement'
 	},
@@ -79,9 +94,9 @@ bundles.add({
 	moduleName: 'inferno-create-class',
 	moduleEntry: 'packages/inferno-create-class/src/index.js',
 	moduleGlobals: {
-		'inferno': 'Inferno',
+		inferno: 'Inferno',
 		'inferno-component': 'Inferno.Component',
-		'inferno-create-element': 'Inferno.createElement',
+		'inferno-create-element': 'Inferno.createElement'
 	},
 	path: 'packages/inferno-create-class/'
 });
@@ -91,12 +106,12 @@ bundles.add({
 	moduleName: 'inferno-redux',
 	moduleEntry: 'packages/inferno-redux/src/index.js',
 	moduleGlobals: {
-		'inferno': 'Inferno',
+		inferno: 'Inferno',
 		'inferno-component': 'Inferno.Component',
 		'inferno-create-element': 'Inferno.createElement',
 		'inferno-create-class': 'Inferno.createClass',
 		'path-to-regexp-es6': 'Inferno.pathToRegExp',
-		'redux': 'redux'
+		redux: 'Redux'
 	},
 	path: 'packages/inferno-redux/'
 });
@@ -106,12 +121,12 @@ bundles.add({
 	moduleName: 'inferno-mobx',
 	moduleEntry: 'packages/inferno-mobx/src/index.js',
 	moduleGlobals: {
-		'inferno': 'Inferno',
+		inferno: 'Inferno',
 		'inferno-component': 'Inferno.Component',
 		'inferno-create-element': 'Inferno.createElement',
 		'inferno-create-class': 'Inferno.createClass',
 		'path-to-regexp-es6': 'Inferno.pathToRegExp',
-		'mobx': 'mobx'
+		mobx: 'mobx'
 	},
 	path: 'packages/inferno-mobx/'
 });
@@ -121,17 +136,21 @@ bundles.add({
 	moduleName: 'inferno-hyperscript',
 	moduleEntry: 'packages/inferno-hyperscript/src/index.js',
 	moduleGlobals: {
-		'inferno': 'Inferno',
-		'inferno-create-element': 'Inferno.createElement',
+		inferno: 'Inferno',
+		'inferno-create-element': 'Inferno.createElement'
 	},
 	path: 'packages/inferno-hyperscript/'
 });
 
 bundles.add({
-	moduleGlobal: 'Inferno.VNodeFlags',
-	moduleName: 'inferno-vnode-flags',
-	moduleEntry: 'packages/inferno-vnode-flags/src/index.js',
-	path: 'packages/inferno-vnode-flags/'
+	moduleGlobal: 'Inferno.DevTools',
+	moduleName: 'inferno-devtools',
+	moduleEntry: 'packages/inferno-devtools/src/index.js',
+	moduleGlobals: {
+		inferno: 'Inferno',
+		'inferno-component': 'Inferno.Component'
+	},
+	path: 'packages/inferno-devtools/'
 });
 
-export default bundles;
+module.exports = bundles;

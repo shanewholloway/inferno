@@ -1,7 +1,7 @@
 import {
 	EMPTY_OBJ,
 	isNullOrUndef
-} from '../../shared';
+} from 'inferno-helpers';
 import { wrappers } from './processElement';
 
 function isCheckedType(type) {
@@ -70,8 +70,8 @@ function onCheckboxChange(e) {
 
 function handleAssociatedRadioInputs(name) {
 	const inputs: any = document.querySelectorAll(`input[type="radio"][name="${ name }"]`);
-	[].forEach.call(inputs, dom => {
-		const inputWrapper = wrappers.get(dom);
+	[].forEach.call(inputs, (dom) => {
+		const inputWrapper: any = wrappers.get(dom);
 
 		if (inputWrapper) {
 			const props = inputWrapper.vNode.props;
@@ -83,12 +83,12 @@ function handleAssociatedRadioInputs(name) {
 	});
 }
 
-export function processInput(vNode, dom) {
+export function processInput(vNode, dom): boolean {
 	const props = vNode.props || EMPTY_OBJ;
 
 	applyValue(vNode, dom);
 	if (isControlled(props)) {
-		let inputWrapper = wrappers.get(dom);
+		let inputWrapper: any = wrappers.get(dom);
 
 		if (!inputWrapper) {
 			inputWrapper = {
@@ -109,7 +109,9 @@ export function processInput(vNode, dom) {
 			wrappers.set(dom, inputWrapper);
 		}
 		inputWrapper.vNode = vNode;
+		return true;
 	}
+	return false;
 }
 
 export function applyValue(vNode, dom) {
@@ -118,6 +120,8 @@ export function applyValue(vNode, dom) {
 	const value = props.value;
 	const checked = props.checked;
 	const multiple = props.multiple;
+	const defaultValue = props.defaultValue;
+	const hasValue = !isNullOrUndef(value);
 
 	if (type && type !== dom.type) {
 		dom.type = type;
@@ -125,8 +129,11 @@ export function applyValue(vNode, dom) {
 	if (multiple && multiple !== dom.multiple) {
 		dom.multiple = multiple;
 	}
+	if (!isNullOrUndef(defaultValue) && !hasValue) {
+		dom.defaultValue = defaultValue + '';
+	}
 	if (isCheckedType(type)) {
-		if (!isNullOrUndef(value)) {
+		if (hasValue) {
 			dom.value = value;
 		}
 		dom.checked = checked;
@@ -134,7 +141,7 @@ export function applyValue(vNode, dom) {
 			handleAssociatedRadioInputs(props.name);
 		}
 	} else {
-		if (!isNullOrUndef(value) && dom.value !== value) {
+		if (hasValue && dom.value !== value) {
 			dom.value = value;
 		} else if (!isNullOrUndef(checked)) {
 			dom.checked = checked;

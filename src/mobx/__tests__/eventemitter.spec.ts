@@ -1,13 +1,13 @@
 import {
-	expect,
+	expect
 } from 'chai';
 import EventEmitter from '../EventEmitter';
 
-const testData = {
-	testKey: 'testData',
+const testdata = {
+	testKey: 'testdata'
 };
 const testListener = function(data: any) {
-	expect(data).to.equal(testData);
+	expect(data).to.equal(testdata);
 };
 
 describe('mobx - EventEmitter', () => {
@@ -31,7 +31,7 @@ describe('mobx - EventEmitter', () => {
 		const unit = new EventEmitter();
 		const removeListener = unit.on(testListener);
 
-		unit.emit(testData);
+		unit.emit(testdata);
 
 		removeListener();
 	});

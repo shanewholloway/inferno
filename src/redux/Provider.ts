@@ -1,9 +1,9 @@
 import Component from 'inferno-component';
-import { warning } from './utils';
 import {
 	isNullOrUndef,
 	toArray
-} from '../shared';
+} from 'inferno-helpers';
+import { warning } from './utils';
 
 let didWarnAboutReceivingStore = false;
 function warnAboutReceivingStore() {
@@ -39,7 +39,7 @@ export default class Provider extends Component<any, any> {
 }
 
 if (process.env.NODE_ENV !== 'production') {
-	Provider.prototype.componentWillReceiveProps = function (nextProps) {
+	Provider.prototype.componentWillReceiveProps = function(nextProps) {
 		const { store } = this;
 		const { store: nextStore } = nextProps;
 

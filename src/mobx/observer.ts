@@ -2,14 +2,14 @@ import Component from 'inferno-component';
 import createClass from 'inferno-create-class';
 import { Atom, Reaction, extras } from 'mobx';
 import inject from './inject';
-import { throwError } from '../shared';
+import { throwError } from '../../packages/inferno-helpers/src';
 import EventEmitter from './EventEmitter';
 
 let isDevtoolsEnabled = false;
 let isUsingStaticRendering = false;
 
 // WeakMap<Node, Object>;
-export const componentByNodeRegistery = typeof WeakMap !== "undefined" ? new WeakMap() : undefined;
+export const componentByNodeRegistery = typeof WeakMap !== 'undefined' ? new WeakMap() : undefined;
 export const renderReporter = new EventEmitter();
 
 function reportRendering(component) {
@@ -68,7 +68,7 @@ function patch(target, funcName, runMixinFirst = false) {
 }
 
 function isObjectShallowModified(prev, next) {
-	if (null == prev || null == next || typeof prev !== "object" || typeof next !== "object") {
+	if (null == prev || null == next || typeof prev !== 'object' || typeof next !== 'object') {
 		return prev !== next;
 	}
 	const keys = Object.keys(prev);
@@ -96,7 +96,7 @@ const reactiveMixin = {
 		const initialName = this.displayName
 			|| this.name
 			|| (this.constructor && (this.constructor.displayName || this.constructor.name))
-			|| "<component>";
+			|| '<component>';
 		const rootNodeID = `root_${(Math.random() * 1000000000) | 0}`;
 
 		/**
@@ -112,7 +112,7 @@ const reactiveMixin = {
 
 		function makePropertyObservableReference(propName) {
 			let valueHolder = this[propName];
-			const atom = new Atom("reactive " + propName);
+			const atom = new Atom('reactive ' + propName);
 			Object.defineProperty(this, propName, {
 				configurable: true, enumerable: true,
 				get() {
@@ -133,9 +133,9 @@ const reactiveMixin = {
 		}
 
 		// make this.props an observable reference, see #124
-		makePropertyObservableReference.call(this, "props");
+		makePropertyObservableReference.call(this, 'props');
 		// make state an observable reference
-		makePropertyObservableReference.call(this, "state");
+		makePropertyObservableReference.call(this, 'state');
 
 		// wire up reactive render
 		const baseRender = this.render.bind(this);
@@ -149,7 +149,7 @@ const reactiveMixin = {
 					// This unidiomatic React usage but React will correctly warn about this so we continue as usual
 					// See #85 / Pull #44
 					isRenderingPending = true;
-					if (typeof this.componentWillReact === "function") {
+					if (typeof this.componentWillReact === 'function') {
 						this.componentWillReact(); // TODO: wrap in action?
 					}
 					if (this.__$mobxIsUnmounted !== true) {
@@ -228,7 +228,7 @@ const reactiveMixin = {
 
 	shouldComponentUpdate(nextProps, nextState) {
 		if (isUsingStaticRendering) {
-			console.warn("[inferno-mobx] It seems that a re-rendering of a component is triggered while in static (server-side) mode. Please make sure components are rendered only once server-side.");
+			console.warn('[inferno-mobx] It seems that a re-rendering of a component is triggered while in static (server-side) mode. Please make sure components are rendered only once server-side.');
 		}
 		// update on any state changes (as is the default)
 		if (isObjectShallowModified(this.state, nextState)) {
@@ -247,13 +247,13 @@ const reactiveMixin = {
  * Observer function / decorator
  */
 export default function observer(arg1, arg2?) {
-	if (typeof arg1 === "string") {
-		throw new Error("Store names should be provided as array");
+	if (typeof arg1 === 'string') {
+		throw new Error('Store names should be provided as array');
 	}
 	if (Array.isArray(arg1)) {
 		if (!arg2) {
 			// invoked as decorator
-			return componentClass => observer(arg1, componentClass);
+			return (componentClass) => observer(arg1, componentClass);
 		} else {
 			return inject.apply(null, arg1)(observer(arg2));
 		}
@@ -268,7 +268,7 @@ export default function observer(arg1, arg2?) {
 	// If it is function but doesn't seem to be an inferno class constructor,
 	// wrap it to a react class automatically
 	if (
-		typeof componentClass === "function" &&
+		typeof componentClass === 'function' &&
 		(!componentClass.prototype || !componentClass.prototype.render) && !Component.isPrototypeOf(componentClass)
 	) {
 		return observer(createClass({
@@ -281,7 +281,7 @@ export default function observer(arg1, arg2?) {
 	}
 
 	if (!componentClass) {
-		throw new Error("Please pass a valid component to 'observer'");
+		throw new Error('Please pass a valid component to "observer"');
 	}
 
 	const target = componentClass.prototype || componentClass;
@@ -291,17 +291,18 @@ export default function observer(arg1, arg2?) {
 }
 
 function mixinLifecycleEvents(target) {
-	patch(target, "componentWillMount", true);
+	patch(target, 'componentWillMount', true);
 	[
-		"componentDidMount",
-		"componentWillUnmount",
-		"componentWillUnmount",
-		"componentDidUpdate"
+		'componentDidMount',
+		'componentWillUnmount',
+		'componentWillUnmount',
+		'componentDidUpdate'
 	].forEach(function(funcName) {
 		patch(target, funcName);
 	});
 
-	const userShouldFunc = Component.prototype.shouldComponentUpdate !== target.shouldComponentUpdate;
+	const classPrototype: any = Component.prototype;
+	const userShouldFunc = classPrototype.shouldComponentUpdate !== target.shouldComponentUpdate;
 	if (!userShouldFunc || !target.shouldComponentUpdate) {
 		// console.log(target.constructor.displayName, 'mixin');
 		target.shouldComponentUpdate = reactiveMixin.shouldComponentUpdate;

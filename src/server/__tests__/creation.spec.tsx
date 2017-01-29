@@ -1,8 +1,5 @@
 import { expect } from 'chai';
 import { renderToStaticMarkup } from '../renderToString';
-// import Component from '../../component/es2015';
-import Inferno from 'inferno';
-Inferno; // suppress ts 'never used' error
 
 /*
 class StatefulComponent extends Component<any, any> {
@@ -38,9 +35,36 @@ describe('SSR Creation (JSX)', () => {
 		description: 'should render a stateless component with comments',
 		template: () => <div>Hello world, {/*comment*/}</div>,
 		result: '<div>Hello world, </div>'
+	}, {
+		description: 'should render mixed invalid/valid children',
+		template: () => <div>{[ null, '123', null, '456' ]}</div>,
+		result: '<div>123<!---->456</div>'
+	}, {
+		description: 'should ignore children as props',
+		template: () => <p children="foo">foo</p>,
+		result: '<p>foo</p>'
+	}, {
+		description: 'should render input with value',
+		template: () => <input value="bar"/>,
+		result: '<input value="bar">'
+	}, {
+		description: 'should render input with value when defaultValue is present',
+		template: () => <input value="bar" defaultValue="foo"/>,
+		result: '<input value="bar">'
+	}, {
+		description: 'should render input when value is not present with defaultValue',
+		template: () => <input defaultValue="foo"/>,
+		result: '<input value="foo">'
+	}, {
+		description: 'should render select element with selected property',
+		template: () => <select value="dog">
+			<option value="cat">A cat</option>
+			<option value="dog">A dog</option>
+		</select>,
+		result: '<select value="dog"><option>A cat</option><option selected>A dog</option></select>'
 	}];
 
-	testEntries.forEach(test => {
+	testEntries.forEach((test) => {
 		it(test.description, () => {
 			const container = document.createElement('div');
 			const vDom = test.template('foo');

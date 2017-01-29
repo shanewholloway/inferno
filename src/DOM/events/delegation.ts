@@ -1,3 +1,6 @@
+import { isBrowser } from 'inferno-helpers';
+
+const isiOS = isBrowser && !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
 const delegatedEvents = new Map();
 
 interface IDelegate {
@@ -19,6 +22,9 @@ export function handleEvent(name, lastEvent, nextEvent, dom) {
 		}
 		if (!lastEvent) {
 			delegatedRoots.count++;
+			if (isiOS && name === 'onClick') {
+				trapClickOnNonInteractiveElement(dom);
+			}
 		}
 		delegatedRoots.items.set(dom, nextEvent);
 	} else if (delegatedRoots) {
@@ -49,10 +55,12 @@ function dispatchEvent(event, dom, items, count, eventData) {
 			return;
 		}
 	}
-	const parentDom = dom.parentNode;
+	if (count > 0) {
+		const parentDom = dom.parentNode;
 
-	if (count > 0 && (parentDom || parentDom === document.body)) {
-		dispatchEvent(event, parentDom, items, count, eventData);
+		if (parentDom || parentDom === document.body) {
+			dispatchEvent(event, parentDom, items, count, eventData);
+		}
 	}
 }
 
@@ -85,4 +93,19 @@ function attachEventToDocument(name, delegatedRoots) {
 	};
 	document.addEventListener(normalizeEventName(name), docEvent);
 	return docEvent;
+}
+
+function emptyFn() {}
+
+function trapClickOnNonInteractiveElement(dom) {
+	// Mobile Safari does not fire properly bubble click events on
+	// non-interactive elements, which means delegated click listeners do not
+	// fire. The workaround for this bug involves attaching an empty click
+	// listener on the target node.
+	// http://www.quirksmode.org/blog/archives/2010/09/click_event_del.html
+	// Just set it using the onclick property so that we don't have to manage any
+	// bookkeeping for it. Not sure if we need to clear it when the listener is
+	// removed.
+	// TODO: Only do this for the relevant Safaris maybe?
+	dom.onclick = emptyFn;
 }

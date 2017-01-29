@@ -1,11 +1,9 @@
-import { assert, spy } from 'sinon';
-
-import Component from 'inferno-component';
-import Inferno, { render } from 'inferno';
-import createElement from 'inferno-create-element';
-import { innerHTML } from '../../tools/utils';
 import { expect } from 'chai';
-Inferno;
+import { render } from 'inferno';
+import Component from 'inferno-component';
+import createElement from 'inferno-create-element';
+import { assert, spy } from 'sinon';
+import { innerHTML } from '../../tools/utils';
 
 describe('Components (JSX)', () => {
 	let container;
@@ -14,10 +12,8 @@ describe('Components (JSX)', () => {
 	let renderedName = null;
 
 	beforeEach(function() {
-
 		attachedListener = null;
 		renderedName = null;
-
 		container = document.createElement('div');
 		container.style.display = 'none';
 		document.body.appendChild(container);
@@ -391,11 +387,10 @@ describe('Components (JSX)', () => {
 		render((
 			<BasicComponent3 title="styles are removed!" styles={null}/>
 		), container);
-		expect(
-			container.innerHTML
-		).to.equal(
-			innerHTML('<div><span>The title is styles are removed!</span></div>')
-		);
+
+		expect(container.firstChild.getAttribute('style')).to.be.oneOf([null, '']);
+		expect(container.firstChild.tagName).to.eql('DIV');
+		expect(container.firstChild.firstChild.innerHTML).to.eql('The title is styles are removed!');
 	});
 
 	class SuperComponent extends Component<any, any> {
@@ -515,7 +510,7 @@ describe('Components (JSX)', () => {
 		test(<Foo />, 'SPAN', '', done);
 	});
 
-	it('should setState through an event handler', function(done) {
+	it('should setState through an event handler', (done) => {
 		class Foo extends Component<any, any> {
 			constructor(props) {
 				super(props);
@@ -535,15 +530,17 @@ describe('Components (JSX)', () => {
 				);
 			}
 		}
-		test(<Foo initialValue="foo"/>, 'DIV', 'foo', function() {
+		test(<Foo initialValue="foo"/>, 'DIV', 'foo', () => {
 			expect(renderedName).to.equal('foo');
 			attachedListener();
-			expect(renderedName).to.equal('bar');
-			done();
+			setTimeout(() => {
+				expect(renderedName).to.equal('bar');
+				done();
+			}, 10);
 		});
 	});
 
-	it('should render using forceUpdate even when there is no state', function(done) {
+	it('should render using forceUpdate even when there is no state', (done) => {
 		class Foo extends Component<any, any> {
 			mutativeValue: any;
 
@@ -629,7 +626,7 @@ describe('Components (JSX)', () => {
 		it('Second render (update)', (done) => {
 			render(<Wrapper />, container);
 			const buttons = Array.prototype.slice.call(container.querySelectorAll('button'));
-			buttons.forEach(button => button.click());
+			buttons.forEach((button) => button.click());
 
 			// requestAnimationFrame is needed here because
 			// setState fires after a requestAnimationFrame
@@ -692,7 +689,7 @@ describe('Components (JSX)', () => {
 		it('Second render (update with state change)', (done) => {
 			render(<SomeError />, container);
 			const buttons = Array.prototype.slice.call(container.querySelectorAll('button'));
-			buttons.forEach(button => button.click());
+			buttons.forEach((button) => button.click());
 
 			requestAnimationFrame(() => {
 				expect(
@@ -764,7 +761,7 @@ describe('Components (JSX)', () => {
 		it('Second render (update with state change)', (done) => {
 			render(<Testing />, container);
 			const buttons = Array.prototype.slice.call(container.querySelectorAll('button'));
-			buttons.forEach(button => button.click());
+			buttons.forEach((button) => button.click());
 
 			requestAnimationFrame(() => {
 				expect(
@@ -1006,15 +1003,14 @@ describe('Components (JSX)', () => {
 
 		it('should correctly render', (done) => {
 			render(<MyComponent98 />, container);
-			requestAnimationFrame(() => {
+			setTimeout(() => {
 				expect(
 					container.innerHTML
 				).to.equal(
 					innerHTML('<div><div><span>a</span></div></div>')
 				);
 				done();
-			});
-
+			}, 10);
 		});
 	});
 
@@ -1096,15 +1092,15 @@ describe('Components (JSX)', () => {
 			render(<BuggyRender />, container);
 			const buttons = Array.prototype.slice.call(container.querySelectorAll('button'));
 
-			buttons.forEach(button => button.click());
-			requestAnimationFrame(() => {
+			buttons.forEach((button) => button.click());
+			setTimeout(() => {
 				expect(
 					container.innerHTML
 				).to.equal(
 					innerHTML('<div><button>Empty</button><ul><li>BMW</li><li>Volvo</li><li>Saab</li></ul></div>')
 				);
 				done();
-			});
+			}, 10);
 		});
 	});
 
@@ -1152,15 +1148,15 @@ describe('Components (JSX)', () => {
 			render(<ChangeChildrenCount />, container);
 			const buttons = Array.prototype.slice.call(container.querySelectorAll('button'));
 
-			buttons.forEach(button => button.click());
-			requestAnimationFrame(() => {
+			buttons.forEach((button) => button.click());
+			setTimeout(() => {
 				expect(
 					container.innerHTML
 				).to.equal(
 					innerHTML('<div><button>1</button><div>0</div></div>')
 				);
 				done();
-			});
+			}, 10);
 		});
 	});
 
@@ -1215,15 +1211,15 @@ describe('Components (JSX)', () => {
 			render(<First />, container);
 			const buttons = Array.prototype.slice.call(container.querySelectorAll('button'));
 
-			buttons.forEach(button => button.click());
-			requestAnimationFrame(() => {
+			buttons.forEach((button) => button.click());
+			setTimeout(() => {
 				expect(
 					container.innerHTML
 				).to.equal(
 					innerHTML('<div><button>Increase! 1</button><p>1-42</p></div>')
 				);
 				done();
-			});
+			}, 10);
 		});
 	});
 
@@ -1275,15 +1271,15 @@ describe('Components (JSX)', () => {
 			render(<First />, container);
 			const buttons = Array.prototype.slice.call(container.querySelectorAll('button'));
 
-			buttons.forEach(button => button.click());
-			requestAnimationFrame(() => {
+			buttons.forEach((button) => button.click());
+			setTimeout(() => {
 				expect(
 					container.innerHTML
 				).to.equal(
 					innerHTML('<div><button>Increase! 1</button><p>1</p></div>')
 				);
 				done();
-			});
+			}, 10);
 		});
 	});
 
@@ -1349,16 +1345,16 @@ describe('Components (JSX)', () => {
 			render(<First name="guy2"/>, secondDiv);
 
 			const buttons = Array.prototype.slice.call(firstDiv.querySelectorAll('button'));
-			buttons.forEach(button => button.click());
+			buttons.forEach((button) => button.click());
 
-			requestAnimationFrame(() => {
+			setTimeout(() => {
 				expect(
 					container.innerHTML
 				).to.equal(
 					innerHTML('<div><div><button>guy1 1</button><p>1</p></div></div><div><div><button>guy2 0</button><p>0</p></div></div>')
 				);
 				done();
-			});
+			}, 10);
 		});
 
 		it('should handle update when changing second component', (done) => {
@@ -1366,21 +1362,21 @@ describe('Components (JSX)', () => {
 			render(<First name="guy2"/>, secondDiv);
 
 			const buttons = Array.prototype.slice.call(secondDiv.querySelectorAll('button'));
-			buttons.forEach(button => button.click());
+			buttons.forEach((button) => button.click());
 
-			requestAnimationFrame(() => {
+			setTimeout(() => {
 				expect(
 					container.innerHTML
 				).to.equal(
 					innerHTML('<div><div><button>guy1 0</button><p>0</p></div></div><div><div><button>guy2 1</button><p>1</p></div></div>')
 				);
 				done();
-			});
+			}, 10);
 		});
 	});
 
 	describe('updating child should not cause rendering parent to fail', () => {
-		it('should render parent correctly after child changes', () => {
+		it('should render parent correctly after child changes', (done) => {
 
 			let updateParent,
 				updateChild;
@@ -1446,9 +1442,14 @@ describe('Components (JSX)', () => {
 			render(<Parent />, container);
 			expect(container.innerHTML).to.equal(innerHTML('<div><p>parent</p><div>A</div></div>'));
 			updateChild();
-			expect(container.innerHTML).to.equal(innerHTML('<div><p>parent</p><div>B</div></div>'));
-			updateParent();
-			expect(container.innerHTML).to.equal(innerHTML('<div><p>parent</p><div>Y</div></div>'));
+			setTimeout(() => {
+				expect(container.innerHTML).to.equal(innerHTML('<div><p>parent</p><div>B</div></div>'));
+				updateParent();
+				setTimeout(() => {
+					expect(container.innerHTML).to.equal(innerHTML('<div><p>parent</p><div>Y</div></div>'));
+					done();
+				}, 10);
+			}, 10);
 		});
 	});
 
@@ -1649,7 +1650,7 @@ describe('Components (JSX)', () => {
 		expect(containerFlag).to.equal(false);
 
 		const spans = Array.prototype.slice.call(container.querySelectorAll('span'));
-		spans.forEach(span => span.click());
+		spans.forEach((span) => span.click());
 
 		expect(btnFlag).to.equal(true);
 		expect(containerFlag).to.equal(true);
@@ -1695,7 +1696,7 @@ describe('Components (JSX)', () => {
 		expect(containerFlag).to.equal(false);
 
 		const spans = Array.prototype.slice.call(container.querySelectorAll('span'));
-		spans.forEach(span => span.click());
+		spans.forEach((span) => span.click());
 
 		expect(btnFlag).to.equal(true);
 		expect(containerFlag).to.equal(false);
@@ -1782,9 +1783,9 @@ describe('Components (JSX)', () => {
 		});
 	});
 
-	it('Should trigger ref lifecycle after patch', () => {
+	it('Should trigger ref lifecycle after patch', (done) => {
 		let updater;
-		let obj = {
+		const obj = {
 			fn() {
 			}
 		};
@@ -1829,8 +1830,11 @@ describe('Components (JSX)', () => {
 		notCalled(sinonSpy);
 
 		updater();
-		expect(container.innerHTML).to.equal(innerHTML('<div><div>Hello world2</div></div>'));
-		calledOnce(sinonSpy);
+		setTimeout(() => {
+			expect(container.innerHTML).to.equal(innerHTML('<div><div>Hello world2</div></div>'));
+			calledOnce(sinonSpy);
+			done();
+		}, 10);
 	});
 
 	describe('Should be able to swap between invalid node and valid node', () => {
@@ -1850,7 +1854,7 @@ describe('Components (JSX)', () => {
 				}
 
 				changeDOM() {
-					this.setState({
+					this.setStateSync({
 						bool: !this.state.bool
 					});
 				}
@@ -1900,7 +1904,7 @@ describe('Components (JSX)', () => {
 			}
 
 			changeDOM() {
-				this.setState({
+				this.setStateSync({
 					bool: !this.state.bool
 				});
 			}
@@ -1928,7 +1932,7 @@ describe('Components (JSX)', () => {
 		expect(container.innerHTML).to.equal(innerHTML('<div>text<div>div</div></div>'));
 	});
 
-	it('Should be able to swap between text node and html node #2', () => {
+	it('Should be able to swap between text node and html node #2', (done) => {
 		let updater;
 
 		class Bar extends Component<any, any> {
@@ -1963,13 +1967,18 @@ describe('Components (JSX)', () => {
 		expect(container.innerHTML).to.equal(innerHTML('<div><div>div</div></div>'));
 
 		updater();
-		expect(container.innerHTML).to.equal(innerHTML('<div><span>span</span><div>div</div></div>'));
-
-		updater();
-		expect(container.innerHTML).to.equal(innerHTML('<div><div>div</div></div>'));
-
-		updater();
-		expect(container.innerHTML).to.equal(innerHTML('<div><span>span</span><div>div</div></div>'));
+		setTimeout(() => {
+			expect(container.innerHTML).to.equal(innerHTML('<div><span>span</span><div>div</div></div>'));
+			updater();
+			setTimeout(() => {
+				expect(container.innerHTML).to.equal(innerHTML('<div><div>div</div></div>'));
+				updater();
+				setTimeout(() => {
+					expect(container.innerHTML).to.equal(innerHTML('<div><span>span</span><div>div</div></div>'));
+					done();
+				}, 10);
+			}, 10);
+		}, 10);
 	});
 
 	describe('handling of sCU', () => {
@@ -2079,7 +2088,7 @@ describe('Components (JSX)', () => {
 				}
 
 				toggle1() {
-					this.setState({
+					this.setStateSync({
 						toggle1: !this.state.toggle1
 					});
 				}
@@ -2132,7 +2141,7 @@ describe('Components (JSX)', () => {
 				}
 
 				toggle1() {
-					this.setState({
+					this.setStateSync({
 						toggle1: !this.state.toggle1
 					});
 				}
@@ -2252,20 +2261,26 @@ describe('Components (JSX)', () => {
 		}
 
 		it('should mount component with defaultProps', () => {
-			render(<Comp1 c='C'/>, container);
+			render(<Comp1 c="C"/>, container);
 			expect(innerHTML(container.innerHTML)).to.equal(innerHTML('<div class="A" id="B">Hello C!</div>'));
 		});
 
+		// it.skip('should mount child component with its defaultProps', () => {
+		// 	const Parent = (props) => <div>{props.children.props.a}</div>;
+		// 	render(<Parent><Comp1 c="C" /></Parent>, container);
+		// 	expect(innerHTML(container.innerHTML)).to.equal(innerHTML('<div>A</div>'));
+		// });
+
 		it('should patch component with defaultProps', () => {
-			render(<Comp1 c='C'/>, container);
-			render(<Comp1 c='C2'/>, container);
+			render(<Comp1 c="C"/>, container);
+			render(<Comp1 c="C2"/>, container);
 			expect(innerHTML(container.innerHTML)).to.equal(innerHTML('<div class="A" id="B">Hello C2!</div>'));
 		});
 		it('should patch component with defaultProps #2', () => {
-			render(<Comp1 c='C'/>, container);
-			render(<Comp2 c='C1'/>, container);
+			render(<Comp1 c="C"/>, container);
+			render(<Comp2 c="C1"/>, container);
 			expect(innerHTML(container.innerHTML)).to.equal(innerHTML('<div class="aye" id="bee">Hello C1!</div>'));
-			render(<Comp1 c='C2'/>, container);
+			render(<Comp1 c="C2"/>, container);
 			expect(innerHTML(container.innerHTML)).to.equal(innerHTML('<div class="A" id="B">Hello C2!</div>'));
 		});
 	});
@@ -2293,11 +2308,14 @@ describe('Components (JSX)', () => {
 			}
 		}
 
-		it('the state should update properly', () => {
+		it('the state should update properly', (done) => {
 			render(<Comp1 />, container);
 			expect(container.innerHTML).to.equal(innerHTML('<div>yar</div>'));
 			reference();
-			expect(container.innerHTML).to.equal(innerHTML('<div>bar</div>'));
+			setTimeout(() => {
+				expect(container.innerHTML).to.equal(innerHTML('<div>bar</div>'));
+				done();
+			}, 10);
 		});
 	});
 
@@ -2397,13 +2415,13 @@ describe('Components (JSX)', () => {
 				this.state = { n: false };
 
 				this.onClick = () => {
-					this.setState({ n: !this.state.n });
+					this.setStateSync({ n: !this.state.n });
 				};
 			}
 
 			render() {
 				if (this.state.n) {
-					return <div ref={ dom => div = dom } onClick={this.onClick}>DIV</div>;
+					return <div ref={ (dom) => div = dom } onClick={this.onClick}>DIV</div>;
 				}
 				return <span onClick={this.onClick}>SPAN</span>;
 			}
@@ -2423,7 +2441,7 @@ describe('Components (JSX)', () => {
 			constructor(props) {
 				super(props);
 				this.state = {
-					reverse: false,
+					reverse: false
 				};
 			}
 
@@ -2438,7 +2456,7 @@ describe('Components (JSX)', () => {
 
 				return (
 					<div>
-						<button onClick={() => { this.setState({ reverse: !this.state.reverse }); }}>Swap Rows</button>
+						<button onClick={() => { this.setStateSync({ reverse: !this.state.reverse }); }}>Swap Rows</button>
 						<div>
 							{ children }
 						</div>
@@ -2483,13 +2501,13 @@ describe('Components (JSX)', () => {
 				this.state = { n: false };
 
 				this.onClick = () => {
-					this.setState({ n: !this.state.n });
+					this.setStateSync({ n: !this.state.n });
 				};
 			}
 
 			render() {
 				if (this.state.n) {
-					return <div ref={ dom => div = dom } onClick={this.onClick}>DIV</div>;
+					return <div ref={ (dom) => div = dom } onClick={this.onClick}>DIV</div>;
 				}
 				return <span onClick={this.onClick}>SPAN</span>;
 			}
@@ -2513,7 +2531,7 @@ describe('Components (JSX)', () => {
 			constructor(props) {
 				super(props);
 				this.state = {
-					reverse: false,
+					reverse: false
 				};
 			}
 
@@ -2528,7 +2546,7 @@ describe('Components (JSX)', () => {
 
 				return (
 					<div>
-						<button onClick={() => { this.setState({ reverse: !this.state.reverse }); }}>Swap Rows</button>
+						<button onClick={() => { this.setStateSync({ reverse: !this.state.reverse }); }}>Swap Rows</button>
 						<div>
 							{ children }
 						</div>
@@ -2573,13 +2591,13 @@ describe('Components (JSX)', () => {
 				this.state = { n: false };
 
 				this.onClick = () => {
-					this.setState({ n: !this.state.n });
+					this.setStateSync({ n: !this.state.n });
 				};
 			}
 
 			render() {
 				if (this.state.n) {
-					return <div ref={ dom => div = dom } onClick={this.onClick}>DIV</div>;
+					return <div ref={ (dom) => div = dom } onClick={this.onClick}>DIV</div>;
 				}
 				return <span onClick={this.onClick}>SPAN</span>;
 			}
@@ -2589,7 +2607,7 @@ describe('Components (JSX)', () => {
 			return <A />;
 		}
 
-		function B () {
+		function B() {
 			return <F onComponentShouldUpdate={ () => false } />;
 		}
 
@@ -2597,7 +2615,7 @@ describe('Components (JSX)', () => {
 			constructor(props) {
 				super(props);
 				this.state = {
-					reverse: false,
+					reverse: false
 				};
 			}
 
@@ -2612,7 +2630,7 @@ describe('Components (JSX)', () => {
 
 				return (
 					<div>
-						<button onClick={() => { this.setState({ reverse: !this.state.reverse }); }}>Swap Rows</button>
+						<button onClick={() => { this.setStateSync({ reverse: !this.state.reverse }); }}>Swap Rows</button>
 						<div>
 							{ children }
 						</div>
@@ -2655,7 +2673,7 @@ describe('Components (JSX)', () => {
 				this.state = { n: false };
 
 				this.onClick = () => {
-					this.setState({ n: !this.state.n });
+					this.setStateSync({ n: !this.state.n });
 				};
 			}
 
@@ -2681,7 +2699,7 @@ describe('Components (JSX)', () => {
 			constructor(props) {
 				super(props);
 				this.state = {
-					reverse: false,
+					reverse: false
 				};
 			}
 
@@ -2696,7 +2714,7 @@ describe('Components (JSX)', () => {
 
 				return (
 					<div>
-						<button onClick={() => { this.setState({ reverse: !this.state.reverse }); }}>Swap Rows</button>
+						<button onClick={() => { this.setStateSync({ reverse: !this.state.reverse }); }}>Swap Rows</button>
 						<div>
 							{ children }
 						</div>
@@ -2730,7 +2748,7 @@ describe('Components (JSX)', () => {
 				this.state = { n: false };
 
 				this.onClick = () => {
-					this.setState({ n: !this.state.n });
+					this.setStateSync({ n: !this.state.n });
 				};
 			}
 
@@ -2758,7 +2776,7 @@ describe('Components (JSX)', () => {
 			constructor(props) {
 				super(props);
 				this.state = {
-					reverse: false,
+					reverse: false
 				};
 			}
 
@@ -2773,7 +2791,7 @@ describe('Components (JSX)', () => {
 
 				return (
 					<div>
-						<button onClick={() => { this.setState({ reverse: !this.state.reverse }); }}>Swap Rows</button>
+						<button onClick={() => { this.setStateSync({ reverse: !this.state.reverse }); }}>Swap Rows</button>
 						<div>
 							{ children }
 						</div>
@@ -2823,7 +2841,7 @@ describe('Components (JSX)', () => {
 			render() {
 				return (
 					<div>
-						<button onClick={() => { i++; this.setState({}); }}>Replace</button>
+						<button onClick={() => { i++; this.setStateSync({}); }}>Replace</button>
 						<div>
 					<B key={i} />
 						</div>
@@ -2847,7 +2865,7 @@ describe('Components (JSX)', () => {
 			constructor(props) {
 				super(props);
 				this.state = {
-					reverse: false,
+					reverse: false
 				};
 			}
 
@@ -2883,7 +2901,7 @@ describe('Components (JSX)', () => {
 			constructor(props) {
 				super(props);
 				this.state = {
-					reverse: false,
+					reverse: false
 				};
 			}
 
@@ -2916,6 +2934,81 @@ describe('Components (JSX)', () => {
 			expect(container.innerHTML).to.eql('<div><button>Swap Rows</button><div><div>B</div><div>A</div></div><div><div>B</div><div>A</div></div></div>');
 			// click "SWAP ROWS"
 			container.querySelector('button').click();
+		});
+	});
+
+	describe('Asynchronous setStates', () => {
+		it('Should not fail when parent component calls setState on unmounting children', (done) => {
+			class Parent extends Component<any, any> {
+				constructor(props) {
+					super(props);
+
+					this.state = {
+						text: 'bar'
+					};
+
+					this.changeState = this.changeState.bind(this);
+				}
+
+				changeState() {
+					this.setState({
+						text: 'foo'
+					});
+				}
+
+				render() {
+					return (
+						<div>
+							<span>{this.state.text}</span>
+							{this.props.toggle ? [<Tester toggle={this.props.toggle} call={this.changeState}/>] : <span style={this.props.toggle ? {color: 'blue'} : null}>tester</span>}
+						</div>
+					);
+				}
+			}
+
+			class Tester extends Component<any, any> {
+				constructor(props) {
+					super(props);
+				}
+
+				componentWillUnmount() {
+					// parent will do setState
+					this.props.call();
+				}
+
+				render() {
+					return (
+						<div>
+							<span style={this.props.toggle ? {color: 'blue'} : null}>foo</span>
+						</div>
+					);
+				}
+			}
+
+			render(<Parent toggle={true}/>, container);
+
+			expect(container.innerHTML).to.eql('<div><span>bar</span><div><span style="color: blue;">foo</span></div></div>');
+
+			render(<Parent toggle={false}/>, container);
+
+			setTimeout(() => {
+				done();
+			}, 40);
+		});
+	});
+
+	describe('Context', () => {
+		it('Should be the same object always (dev frozen)', () => {
+			class ContextClass extends Component<any, any> {
+				constructor(props, context) {
+					super(props, context);
+					context.foo = 'bar';
+				}
+			}
+
+			expect(() => {
+				render(<ContextClass />, container);
+			}).to.throw();
 		});
 	});
 });

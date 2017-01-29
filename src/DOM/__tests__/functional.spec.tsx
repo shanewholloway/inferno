@@ -1,10 +1,9 @@
 import { expect } from 'chai';
-import Inferno, { createRenderer } from 'inferno';
-import { map, scan, reduce } from 'most';
-import { hold, sync } from 'most-subject';
+import { createRenderer } from 'inferno';
 import { curry } from 'lodash/fp';
+import { map, reduce, scan } from 'most';
+import { hold, sync } from 'most-subject';
 import Type from 'union-type-es';
-Inferno; // suppress ts 'never used' error
 
 describe('Functional methods (JSX)', () => {
 	let container;
@@ -13,20 +12,20 @@ describe('Functional methods (JSX)', () => {
 		container = document.createElement('div');
 	});
 
-	it('A basic example', done => {
+	it('A basic example', (done) => {
 		// Update
 		const Action = Type({ Increment: [], Decrement: [] });
 
 		const update = (model, action) => Action.case({
-			Increment: _ => model + 1,
-			Decrement: _ => model - 1
+			Increment: (_) => model + 1,
+			Decrement: (_) => model - 1
 		}, action);
 
 		const actions$ = hold(1, sync());
 
-		const emitAction = action => actions$.next(action);
-		const emitDecrement = _ => emitAction(Action.Decrement());
-		const emitIncrement = _ => emitAction(Action.Increment());
+		const emitAction = (action) => actions$.next(action);
+		const emitDecrement = (_) => emitAction(Action.Decrement());
+		const emitIncrement = (_) => emitAction(Action.Increment());
 
 		// View
 		const countStyle = {
@@ -39,9 +38,9 @@ describe('Functional methods (JSX)', () => {
 		// noinspection TypeScriptUnresolvedFunction
 		const view = curry((actions, model) =>
 			<div style={countStyle}>
-				<button id='decrement' onClick={emitDecrement}>-</button>
+				<button id="decrement" onClick={emitDecrement}>-</button>
 				<div style={countStyle}>{model}</div>
-				<button id='increment' onClick={emitIncrement}>+</button>
+				<button id="increment" onClick={emitIncrement}>+</button>
 			</div>);
 
 		// FRP

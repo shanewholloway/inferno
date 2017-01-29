@@ -1,4 +1,4 @@
-import createElement from 'inferno-create-element';
+import { createVNode } from 'inferno';
 
 interface ILinkProps {
 	href: any;
@@ -10,9 +10,10 @@ interface ILinkProps {
 }
 
 export default function Link(props, { router }) {
-	const { activeClassName, activeStyle, className, to } = props;
+	const { activeClassName, activeStyle, className, onClick, to, ...otherProps } = props;
 	const elemProps: ILinkProps = {
-		href: to
+		href: to,
+		...otherProps
 	};
 
 	if (className) {
@@ -29,12 +30,15 @@ export default function Link(props, { router }) {
 	}
 
 	elemProps.onclick = function navigate(e) {
-		if (e.button !== 0 || e.ctrlKey || e.altKey) {
+		if (e.button !== 0 || e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
 			return;
 		}
 		e.preventDefault();
+		if (typeof onClick === 'function') {
+			onClick(e);
+		}
 		router.push(to, e.target.textContent);
 	};
 
-	return createElement('a', elemProps, props.children);
+	return createVNode(VNodeFlags.HtmlElement, 'a', elemProps, props.children);
 }

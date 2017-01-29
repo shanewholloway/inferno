@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import { assert, spy } from 'sinon';
+import { render } from 'inferno';
 import Component from 'inferno-component';
-import Inferno, { render } from 'inferno';
-Inferno; // suppress ts 'never used' error
+import { assert, spy } from 'sinon';
+import { innerHTML } from '../../tools/utils';
 
 describe('Component lifecycle (JSX)', () => {
 	let container;
@@ -23,6 +23,8 @@ describe('Component lifecycle (JSX)', () => {
 			let updater = null;
 
 			class A extends Component<any, any> {
+				componentWillUnmount() {}
+
 				constructor(props) {
 					super(props);
 
@@ -35,7 +37,7 @@ describe('Component lifecycle (JSX)', () => {
 				}
 
 				updateme() {
-					this.setState({
+					this.setStateSync({
 						foo: !this.state.foo
 					});
 				}
@@ -56,6 +58,8 @@ describe('Component lifecycle (JSX)', () => {
 			}
 
 			class B extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -66,6 +70,8 @@ describe('Component lifecycle (JSX)', () => {
 			}
 
 			class C extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -76,6 +82,9 @@ describe('Component lifecycle (JSX)', () => {
 			}
 
 			class D extends Component<any, any> {
+
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -92,21 +101,21 @@ describe('Component lifecycle (JSX)', () => {
 			const notCalled = assert.notCalled;
 
 			render(<A />, container);
-			expect(container.innerHTML).to.equal('<div><button>btn</button></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><button>btn</button></div>'));
 			notCalled(Aspy);
 			notCalled(Bspy);
 			notCalled(CSpy);
 			notCalled(DSpy);
 
 			updater();
-			expect(container.innerHTML).to.equal('<div><div><div><div>Terve</div></div></div><button>btn</button></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><div><div><div>Terve</div></div></div><button>btn</button></div>'));
 			notCalled(Aspy);
 			notCalled(Bspy);
 			notCalled(CSpy);
 			notCalled(DSpy);
 
 			updater();
-			expect(container.innerHTML).to.equal('<div><button>btn</button></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><button>btn</button></div>'));
 			notCalled(Aspy);
 			const calledOnce = assert.calledOnce;
 			calledOnce(Bspy);
@@ -118,6 +127,8 @@ describe('Component lifecycle (JSX)', () => {
 			let updater = null;
 
 			class A extends Component<any, any> {
+				componentWillUnmount() {}
+
 				constructor(props) {
 					super(props);
 
@@ -130,7 +141,7 @@ describe('Component lifecycle (JSX)', () => {
 				}
 
 				updateme() {
-					this.setState({
+					this.setStateSync({
 						foo: !this.state.foo
 					});
 				}
@@ -151,18 +162,24 @@ describe('Component lifecycle (JSX)', () => {
 			}
 
 			class B extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (<C />);
 				}
 			}
 
 			class C extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (<D />);
 				}
 			}
 
 			class D extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -179,21 +196,21 @@ describe('Component lifecycle (JSX)', () => {
 			const notCalled = assert.notCalled;
 
 			render(<A />, container);
-			expect(container.innerHTML).to.equal('<div><button>btn</button></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><button>btn</button></div>'));
 			notCalled(Aspy);
 			notCalled(Bspy);
 			notCalled(CSpy);
 			notCalled(DSpy);
 
 			updater();
-			expect(container.innerHTML).to.equal('<div><div>Terve</div><button>btn</button></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><div>Terve</div><button>btn</button></div>'));
 			notCalled(Aspy);
 			notCalled(Bspy);
 			notCalled(CSpy);
 			notCalled(DSpy);
 
 			updater();
-			expect(container.innerHTML).to.equal('<div><button>btn</button></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><button>btn</button></div>'));
 			notCalled(Aspy);
 			const calledOnce = assert.calledOnce;
 			calledOnce(Bspy);
@@ -203,18 +220,24 @@ describe('Component lifecycle (JSX)', () => {
 
 		it('Should trigger unMount once for direct nested children', () => {
 			class B extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return <div>B</div>;
 				}
 			}
 
 			class C extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return <div>C</div>;
 				}
 			}
 
 			class D extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return <div>D</div>;
 				}
@@ -227,25 +250,25 @@ describe('Component lifecycle (JSX)', () => {
 			const calledOnce = assert.calledOnce;
 
 			render(<B />, container);
-			expect(container.innerHTML).to.equal('<div>B</div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div>B</div>'));
 			notCalled(Bspy);
 			notCalled(CSpy);
 			notCalled(DSpy);
 
 			render(<C />, container);
-			expect(container.innerHTML).to.equal('<div>C</div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div>C</div>'));
 			calledOnce(Bspy);
 			notCalled(CSpy);
 			notCalled(DSpy);
 
 			render(<D />, container);
-			expect(container.innerHTML).to.equal('<div>D</div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div>D</div>'));
 			calledOnce(Bspy);
 			calledOnce(CSpy);
 			notCalled(DSpy);
 
 			render(<B />, container);
-			expect(container.innerHTML).to.equal('<div>B</div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div>B</div>'));
 			calledOnce(Bspy);
 			calledOnce(CSpy);
 			calledOnce(DSpy);
@@ -255,6 +278,8 @@ describe('Component lifecycle (JSX)', () => {
 			let updater = null;
 
 			class B extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -266,12 +291,16 @@ describe('Component lifecycle (JSX)', () => {
 			}
 
 			class B1 extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return <p>B1</p>;
 				}
 			}
 
 			class B2 extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return <p>B2</p>;
 				}
@@ -288,6 +317,8 @@ describe('Component lifecycle (JSX)', () => {
 					this.updateMe = this.updateMe.bind(this);
 					updater = this.updateMe;
 				}
+
+				componentWillUnmount() {}
 
 				updateMe() {
 					this.setState({
@@ -325,7 +356,7 @@ describe('Component lifecycle (JSX)', () => {
 			const calledOnce = assert.calledOnce;
 
 			render(<B />, container);
-			expect(container.innerHTML).to.equal('<div><p>B1</p><p>B2</p></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><p>B1</p><p>B2</p></div>'));
 			notCalled(Bspy);
 			notCalled(B1spy);
 			notCalled(B2spy);
@@ -337,7 +368,7 @@ describe('Component lifecycle (JSX)', () => {
 			CSpy.reset();
 
 			render(<C />, container);
-			expect(container.innerHTML).to.equal('<div class="c"><p>C1</p><p>C2</p></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div class="c"><p>C1</p><p>C2</p></div>'));
 			calledOnce(Bspy);
 			calledOnce(B1spy);
 			calledOnce(B2spy);
@@ -465,11 +496,11 @@ describe('Component lifecycle (JSX)', () => {
 
 	describe('ref hook', () => {
 		const fakeObj = {
-			outerCallback () {
+			outerCallback() {
 			},
-			innerCallback () {
+			innerCallback() {
 			},
-			innerSecondCallback () {
+			innerSecondCallback() {
 			}
 		};
 
@@ -638,11 +669,11 @@ describe('Component lifecycle (JSX)', () => {
 
 	describe('ref hook complex', () => {
 		const fakeObj = {
-			outerCallback () {
+			outerCallback() {
 			},
-			innerCallback () {
+			innerCallback() {
 			},
-			innerSecondCallback () {
+			innerSecondCallback() {
 			}
 		};
 
@@ -755,11 +786,11 @@ describe('Component lifecycle (JSX)', () => {
 
 	describe('ref hook #2 with statefull components', () => {
 		const fakeObj = {
-			outerCallback () {
+			outerCallback() {
 			},
-			innerCallback () {
+			innerCallback() {
 			},
-			innerSecondCallback () {
+			innerSecondCallback() {
 			}
 		};
 
@@ -804,7 +835,7 @@ describe('Component lifecycle (JSX)', () => {
 			spyInnerSecond.reset();
 		});
 
-		it('Should call function when node is attached', () => {
+		it('Should call function when node is attached #2', () => {
 			notCalled(spyOuter);
 			notCalled(spyInner);
 			notCalled(spyInnerSecond);
@@ -906,11 +937,11 @@ describe('Component lifecycle (JSX)', () => {
 
 	describe('ref hook complex #2 statefull components', () => {
 		const fakeObj = {
-			outerCallback () {
+			outerCallback() {
 			},
-			innerCallback () {
+			innerCallback() {
 			},
-			innerSecondCallback () {
+			innerSecondCallback() {
 			}
 		};
 
@@ -973,7 +1004,7 @@ describe('Component lifecycle (JSX)', () => {
 			spyInnerSecond.reset();
 		});
 
-		it('Should not call ref unmount when node is not mounted', () => {
+		it('Should not call ref unmount when node is not mounted #2', () => {
 			notCalled(spyOuter);
 			notCalled(spyInner);
 			notCalled(spyInnerSecond);
@@ -1032,6 +1063,128 @@ describe('Component lifecycle (JSX)', () => {
 			notCalled(spyInner);
 			notCalled(spyInnerSecond);
 			expect(container.innerHTML).to.eql('<div><div>plaindiv</div></div>');
+		});
+	});
+
+	describe('ES6 Component within functional component', () => {
+		it('Should trigger lifecycle events when functional component change', () => {
+			let unmounted = false;
+
+			function A() {
+				return (
+					<div>
+						<Com/>
+					</div>
+				);
+			}
+
+			function B() {
+				return (
+					<div>
+						<Com/>
+					</div>
+				);
+			}
+
+			class Com extends Component<any, any> {
+				componentWillUnmount() {
+					unmounted = true;
+				}
+
+				render() {
+					return (
+						<div>C</div>
+					);
+				}
+			}
+
+			render(<A/>, container);
+			expect(container.innerHTML).to.eql('<div><div>C</div></div>');
+			expect(unmounted).to.eql(false);
+			render(<B/>, container);
+			expect(unmounted).to.eql(true);
+			expect(container.innerHTML).to.eql('<div><div>C</div></div>');
+		});
+
+		it('Should trigger lifecycle events when functional component dont change', () => {
+			let unmounted = false;
+
+			function A() {
+				return (
+					<div>
+						<Com/>
+					</div>
+				);
+			}
+
+			class Com extends Component<any, any> {
+				componentWillUnmount() {
+					unmounted = true;
+				}
+
+				render() {
+					return (
+						<div>C</div>
+					);
+				}
+			}
+
+			render(<A/>, container);
+			expect(container.innerHTML).to.eql('<div><div>C</div></div>');
+			expect(unmounted).to.eql(false);
+			render(<A/>, container);
+			expect(unmounted).to.eql(false);
+			expect(container.innerHTML).to.eql('<div><div>C</div></div>');
+		});
+	});
+
+	describe('context with hooks', () => {
+		it('Should trigger componentWillMount before getting child context', () => {
+			class A extends Component<any, any> {
+				constructor(props) {
+					super(props);
+
+					this.state = {
+						foobar: null
+					};
+				}
+
+				getChildContext() {
+					return {
+						foobar: this.state.foobar
+					};
+				}
+
+				componentWillMount() {
+					this.setState({
+						foobar: 'hey'
+					});
+				}
+
+				render() {
+					return (
+						<div>
+							<Child/>
+						</div>
+					);
+				}
+			}
+
+			class Child extends Component<any, any> {
+				constructor(props) {
+					super(props);
+				}
+
+				render() {
+					return (
+						<span>{this.context.foobar}</span>
+					);
+				}
+			}
+
+			render(<A/>, container);
+
+			expect(container.innerHTML).to.eql('<div><span>hey</span></div>');
 		});
 	});
 });

@@ -2,78 +2,83 @@ import {
 	isArray,
 	isFunction,
 	isInvalid,
+	isNull,
 	isNullOrUndef,
 	isObject,
-	throwError,
-	isNull,
-} from '../shared';
-import {
-	poolComponent,
-	poolElement,
-	recyclingEnabled,
-} from './recycling';
+	throwError
+} from 'inferno-helpers';
+import options from '../core/options';
 import {
 	patchEvent
 } from './patching';
-
-import { VNodeFlags } from '../core/shapes';
-import { componentToDOMNodeMap, findDOMNodeEnabled } from './rendering';
+import {
+	poolComponent,
+	poolElement
+} from './recycling';
+import { componentToDOMNodeMap } from './rendering';
 import { removeChild } from './utils';
 
-export function unmount(vNode, parentDom, lifecycle, canRecycle, shallowUnmount, isRecycling) {
+export function unmount(vNode: VNode, parentDom: Element, lifecycle: Lifecycle, canRecycle: boolean, isRecycling: boolean) {
 	const flags = vNode.flags;
 
 	if (flags & VNodeFlags.Component) {
-		unmountComponent(vNode, parentDom, lifecycle, canRecycle, shallowUnmount, isRecycling);
+		unmountComponent(vNode, parentDom, lifecycle, canRecycle, isRecycling);
 	} else if (flags & VNodeFlags.Element) {
-		unmountElement(vNode, parentDom, lifecycle, canRecycle, shallowUnmount, isRecycling);
+		unmountElement(vNode, parentDom, lifecycle, canRecycle, isRecycling);
 	} else if (flags & (VNodeFlags.Text | VNodeFlags.Void)) {
 		unmountVoidOrText(vNode, parentDom);
 	}
 }
 
-function unmountVoidOrText(vNode, parentDom) {
+function unmountVoidOrText(vNode: VNode, parentDom: Element) {
 	if (parentDom) {
 		removeChild(parentDom, vNode.dom);
 	}
 }
 
-export function unmountComponent(vNode, parentDom, lifecycle, canRecycle, shallowUnmount, isRecycling) {
-	const instance = vNode.children;
+const alreadyUnmounted = new WeakMap();
+
+export function unmountComponent(vNode: VNode, parentDom: Element, lifecycle: Lifecycle, canRecycle: boolean, isRecycling: boolean) {
+	const instance = vNode.children as any;
 	const flags = vNode.flags;
 	const isStatefulComponent = flags & VNodeFlags.ComponentClass;
-	const ref = vNode.ref;
+	const ref = vNode.ref as any;
 	const dom = vNode.dom;
 
+	if (alreadyUnmounted.has(vNode) && !isRecycling && !parentDom) {
+		return;
+	}
+	alreadyUnmounted.set(vNode);
+
 	if (!isRecycling) {
-		if (!shallowUnmount) {
-			if (isStatefulComponent) {
+		if (isStatefulComponent) {
+			if (!instance._unmounted) {
+				instance._ignoreSetState = true;
+				options.beforeUnmount && options.beforeUnmount(vNode);
+				instance.componentWillUnmount && instance.componentWillUnmount();
+				if (ref && !isRecycling) {
+					ref(null);
+				}
+				instance._unmounted = true;
+				options.findDOMNodeEnabled && componentToDOMNodeMap.delete(instance);
+
 				const subLifecycle = instance._lifecycle;
 
 				if (!subLifecycle.fastUnmount) {
-					unmount(instance._lastInput, null, lifecycle, false, shallowUnmount, isRecycling);
-				}
-			} else {
-				if (!lifecycle.fastUnmount) {
-					unmount(instance, null, lifecycle, false, shallowUnmount, isRecycling);
+					unmount(instance._lastInput, null, subLifecycle, false, isRecycling);
 				}
 			}
-		}
-		if (isStatefulComponent) {
-			instance._ignoreSetState = true;
-			instance.componentWillUnmount();
-			if (ref && !isRecycling) {
-				ref(null);
+		} else {
+			if (!isNullOrUndef(ref)) {
+				if (!isNullOrUndef(ref.onComponentWillUnmount)) {
+					ref.onComponentWillUnmount(dom);
+				}
 			}
-			instance._unmounted = true;
-			findDOMNodeEnabled && componentToDOMNodeMap.delete(instance);
-		} else if (!isNullOrUndef(ref)) {
-			if (!isNullOrUndef(ref.onComponentWillUnmount)) {
-				ref.onComponentWillUnmount(dom);
+			if (!lifecycle.fastUnmount) {
+				unmount(instance, null, lifecycle, false, isRecycling);
 			}
 		}
 	}
-
 	if (parentDom) {
 		let lastInput = instance._lastInput;
 
@@ -82,56 +87,61 @@ export function unmountComponent(vNode, parentDom, lifecycle, canRecycle, shallo
 		}
 		removeChild(parentDom, dom);
 	}
-	if (recyclingEnabled && !isStatefulComponent && (parentDom || canRecycle)) {
+	if (options.recyclingEnabled && !isStatefulComponent && (parentDom || canRecycle)) {
 		poolComponent(vNode);
 	}
 }
 
-export function unmountElement(vNode, parentDom, lifecycle, canRecycle, shallowUnmount, isRecycling) {
+export function unmountElement(vNode: VNode, parentDom: Element, lifecycle: Lifecycle, canRecycle: boolean, isRecycling: boolean) {
 	const dom = vNode.dom;
-	const ref = vNode.ref;
+	const ref = vNode.ref as any;
 	const events = vNode.events;
 
-	if (!shallowUnmount && !lifecycle.fastUnmount) {
+	if (alreadyUnmounted.has(vNode) && !isRecycling && !parentDom) {
+		return;
+	}
+	alreadyUnmounted.set(vNode);
+
+	if (!lifecycle.fastUnmount) {
 		if (ref && !isRecycling) {
 			unmountRef(ref);
 		}
 		const children = vNode.children;
 
 		if (!isNullOrUndef(children)) {
-			unmountChildren(children, lifecycle, shallowUnmount, isRecycling);
+			unmountChildren(children, lifecycle, isRecycling);
 		}
 	}
 	if (!isNull(events)) {
 		for (let name in events) {
 			// do not add a hasOwnProperty check here, it affects performance
-			patchEvent(name, events[name], null, dom, lifecycle);
+			patchEvent(name, events[name], null, dom);
 			events[name] = null;
 		}
 	}
 	if (parentDom) {
 		removeChild(parentDom, dom);
 	}
-	if (recyclingEnabled && (parentDom || canRecycle)) {
+	if (options.recyclingEnabled && (parentDom || canRecycle)) {
 		poolElement(vNode);
 	}
 }
 
-function unmountChildren(children, lifecycle, shallowUnmount, isRecycling) {
+function unmountChildren(children: InfernoChildren, lifecycle: Lifecycle, isRecycling: boolean) {
 	if (isArray(children)) {
-		for (let i = 0; i < children.length; i++) {
+		for (let i = 0; i < (children as Array<string | number | VNode>).length; i++) {
 			const child = children[i];
 
 			if (!isInvalid(child) && isObject(child)) {
-				unmount(child, null, lifecycle, false, shallowUnmount, isRecycling);
+				unmount(child as VNode, null, lifecycle, false, isRecycling);
 			}
 		}
 	} else if (isObject(children)) {
-		unmount(children, null, lifecycle, false, shallowUnmount, isRecycling);
+		unmount(children as VNode, null, lifecycle, false, isRecycling);
 	}
 }
 
-function unmountRef(ref) {
+function unmountRef(ref: Ref) {
 	if (isFunction(ref)) {
 		ref(null);
 	} else {

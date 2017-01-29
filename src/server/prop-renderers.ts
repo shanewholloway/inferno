@@ -1,13 +1,13 @@
 import {
-	escapeText,
-	toHyphenCase,
-} from './utils';
-import {
 	isNullOrUndef,
 	isNumber,
 	isStringOrNumber,
-	isTrue,
-} from '../shared';
+	isTrue
+} from 'inferno-helpers';
+import {
+	escapeText,
+	toHyphenCase
+} from './utils';
 
 import { isUnitlessNumber } from '../DOM/constants';
 

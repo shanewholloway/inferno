@@ -1,16 +1,13 @@
-import {
-	VNodeFlags,
-	VNode
-} from '../core/shapes';
-import { createVNode } from 'inferno';
+import {createVNode} from 'inferno';
 import {
 	isAttrAnEvent,
-	isString,
 	isInvalid,
-	isUndefined,
+	isNullOrUndef,
 	isObject,
-	isStatefulComponent
-} from '../shared';
+	isStatefulComponent,
+	isString,
+	isUndefined
+} from 'inferno-helpers';
 
 const componentHooks = {
 	onComponentWillMount: true,
@@ -21,9 +18,12 @@ const componentHooks = {
 	onComponentDidUpdate: true
 };
 
-export default function createElement(name: string | Function, props?: any, ..._children): VNode {
+export default function createElement<T>(
+	name: string | Function,
+	props?: T & Props,
+	..._children: InfernoChildren[]): VNode {
 	if (isInvalid(name) || isObject(name)) {
-		throw new Error('Inferno Error: createElement() name paramater cannot be undefined, null, false or true, It must be a string, class or function.');
+		throw new Error('Inferno Error: createElement() name parameter cannot be undefined, null, false or true, It must be a string, class or function.');
 	}
 	let children: any = _children;
 	let ref = null;
@@ -56,40 +56,62 @@ export default function createElement(name: string | Function, props?: any, ..._
 				break;
 			default:
 		}
-		for (let prop in props) {
-			if (prop === 'key') {
-				key = props.key;
-				delete props.key;
-			} else if (prop === 'children' && isUndefined(children)) {
-				children = props.children; // always favour children args, default to props
-			} else if (prop === 'ref') {
-				ref = props.ref;
-			} else if (isAttrAnEvent(prop)) {
-				if (!events) {
-					events = {};
+
+		/*
+		 This fixes de-optimisation:
+		 uses object Keys for looping props to avoid deleting props of looped object
+		 */
+		if (!isNullOrUndef(props)) {
+			const propKeys = Object.keys(props);
+
+			for (let i = 0; i < propKeys.length; i++) {
+				const propKey = propKeys[i];
+
+				if (propKey === 'key') {
+					key = props.key;
+					delete props.key;
+				} else if (propKey === 'children' && isUndefined(children)) {
+					children = props.children; // always favour children args, default to props
+				} else if (propKey === 'ref') {
+					ref = props.ref;
+				} else if (isAttrAnEvent(propKey)) {
+					if (!events) {
+						events = {};
+					}
+					events[propKey] = props[propKey];
+					delete props[propKey];
 				}
-				events[prop] = props[prop];
-				delete props[prop];
 			}
 		}
 	} else {
 		flags = isStatefulComponent(name) ? VNodeFlags.ComponentClass : VNodeFlags.ComponentFunction;
 		if (!isUndefined(children)) {
 			if (!props) {
-				props = {};
+				props = {} as T;
 			}
 			props.children = children;
 			children = null;
 		}
-		for (let prop in props) {
-			if (componentHooks[prop]) {
-				if (!ref) {
-					ref = {};
+
+		if (!isNullOrUndef(props)) {
+			/*
+			 This fixes de-optimisation:
+			 uses object Keys for looping props to avoid deleting props of looped object
+			 */
+			const propKeys = Object.keys(props);
+
+			for (let i = 0; i < propKeys.length; i++) {
+				const propKey = propKeys[i];
+
+				if (componentHooks[propKey]) {
+					if (!ref) {
+						ref = {};
+					}
+					ref[propKey] = props[propKey];
+				} else if (propKey === 'key') {
+					key = props.key;
+					delete props.key;
 				}
-				ref[prop] = props[prop];
-			} else if (prop === 'key') {
-				key = props.key;
-				delete props.key;
 			}
 		}
 	}

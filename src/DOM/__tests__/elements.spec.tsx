@@ -1,12 +1,9 @@
-import Inferno, { render } from 'inferno';
-
-import { assert, spy } from 'sinon';
-
-import createElement from 'inferno-create-element';
-import { innerHTML } from '../../tools/utils';
 import { expect } from 'chai';
-
-Inferno; // suppress ts 'never used' error
+import { render } from 'inferno';
+import createElement from 'inferno-create-element';
+import { assert, spy } from 'sinon';
+import {createTextVNode} from '../../core/VNodes';
+import { innerHTML } from '../../tools/utils';
 
 describe('Elements (JSX)', () => {
 	let container;
@@ -604,7 +601,7 @@ describe('Elements (JSX)', () => {
 
 	it('should properly render "width" and "height" attributes', () => {
 
-		render(<img src='' alt="Smiley face" height={42} width={42}/>, container);
+		render(<img src="" alt="Smiley face" height={42} width={42}/>, container);
 
 		expect(container.firstChild.nodeName).to.equal('IMG');
 		expect(container.childNodes.length).to.equal(1);
@@ -613,7 +610,7 @@ describe('Elements (JSX)', () => {
 		expect(container.firstChild.getAttribute('height')).to.equal('42');
 		expect(container.firstChild.getAttribute('width')).to.equal('42');
 
-		render(<img src='' alt="Smiley face" height={42} width={42} fooBar={[]}/>, container);
+		render(<img src="" alt="Smiley face" height={42} width={42} fooBar={[]}/>, container);
 
 		expect(container.firstChild.nodeName).to.equal('IMG');
 		expect(container.childNodes.length).to.equal(1);
@@ -711,24 +708,24 @@ describe('Elements (JSX)', () => {
 		render((
 			<div dangerouslySetInnerHTML={{ __html: 'Hello world!' }}/>
 		), container);
-		expect(container.innerHTML).to.equal('<div>Hello world!</div>');
+		expect(container.innerHTML).to.equal(innerHTML('<div>Hello world!</div>'));
 	});
 
 	it('Should not dangerously set innerHTML when previous is same as new one', () => {
 		render((
 			<div dangerouslySetInnerHTML={{ __html: 'same' }}/>
 		), container);
-		expect(container.innerHTML).to.equal('<div>same</div>');
+		expect(container.innerHTML).to.equal(innerHTML('<div>same</div>'));
 
 		render((
 			<div dangerouslySetInnerHTML={{ __html: 'same' }}/>
 		), container);
-		expect(container.innerHTML).to.equal('<div>same</div>');
+		expect(container.innerHTML).to.equal(innerHTML('<div>same</div>'));
 
 		render((
 			<div dangerouslySetInnerHTML={{ __html: 'change' }}/>
 		), container);
-		expect(container.innerHTML).to.equal('<div>change</div>');
+		expect(container.innerHTML).to.equal(innerHTML('<div>change</div>'));
 	});
 
 	it('Should throw error if __html property is not set', () => {
@@ -766,11 +763,11 @@ describe('Elements (JSX)', () => {
 
 	it('mixing JSX with non-JSX', () => {
 		render(<div>{createElement('div', null)}</div>, container);
-		expect(container.innerHTML).to.equal('<div><div></div></div>');
+		expect(container.innerHTML).to.equal(innerHTML('<div><div></div></div>'));
 		render(<div>{createElement('span', null)}</div>, container);
-		expect(container.innerHTML).to.equal('<div><span></span></div>');
+		expect(container.innerHTML).to.equal(innerHTML('<div><span></span></div>'));
 		render(<span>{createElement('div', null)}</span>, container);
-		expect(container.innerHTML).to.equal('<span><div></div></span>');
+		expect(container.innerHTML).to.equal(innerHTML('<span><div></div></span>'));
 	});
 
 	it('should be able to construct input with Hooks, Events, Attributes defined', (done) => {
@@ -778,8 +775,8 @@ describe('Elements (JSX)', () => {
 		}
 
 		const obj = {
-			fn () {
-			}, click () {
+			fn() {
+			}, click() {
 			}
 		};
 		const bool = false;
@@ -813,30 +810,124 @@ describe('Elements (JSX)', () => {
 
 		it('basic example ', () => {
 			render(a, container);
-			expect(container.innerHTML).to.equal('<div>Hello world</div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div>Hello world</div>'));
 			render(b, container);
-			expect(container.innerHTML).to.equal('<span>This works!</span>');
+			expect(container.innerHTML).to.equal(innerHTML('<span>This works!</span>'));
 		});
 
 		it('basic example #2 ', () => {
 			render(<div>{ [a, a, a] }</div>, container);
-			expect(container.innerHTML).to.equal('<div><div>Hello world</div><div>Hello world</div><div>Hello world</div></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><div>Hello world</div><div>Hello world</div><div>Hello world</div></div>'));
 			render(b, container);
-			expect(container.innerHTML).to.equal('<span>This works!</span>');
+			expect(container.innerHTML).to.equal(innerHTML('<span>This works!</span>'));
 		});
 
 		it('basic nested example ', () => {
 			render(<div>{a}{b}</div>, container);
-			expect(container.innerHTML).to.equal('<div><div>Hello world</div><span>This works!</span></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><div>Hello world</div><span>This works!</span></div>'));
 			render(<div>{b}{a}</div>, container);
-			expect(container.innerHTML).to.equal('<div><span>This works!</span><div>Hello world</div></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><span>This works!</span><div>Hello world</div></div>'));
 		});
 
 		it('basic nested component example ', () => {
 			render(<C>{a}</C>, container);
-			expect(container.innerHTML).to.equal('<div><div>Hello world</div><div>Hello world</div><div>Hello world</div></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><div>Hello world</div><div>Hello world</div><div>Hello world</div></div>'));
 			render(<C>{b}{a}</C>, container);
-			expect(container.innerHTML).to.equal('<div><span>This works!</span><div>Hello world</div><span>This works!</span><div>Hello world</div><span>This works!</span><div>Hello world</div></div>');
+			expect(container.innerHTML).to.equal(innerHTML('<div><span>This works!</span><div>Hello world</div><span>This works!</span><div>Hello world</div><span>This works!</span><div>Hello world</div></div>'));
+		});
+	});
+
+	describe('should correctly handle TEXT VNodes as quasi-immutable objects, like ReactElement does', () => {
+		const a = createTextVNode('Hello world');
+		const b = createTextVNode('This works!');
+		const C = ({ children }) => <div>{children}{children}{children}</div>;
+
+		it('basic example ', () => {
+			render(a, container);
+			expect(container.innerHTML).to.equal('Hello world');
+			render(b, container);
+			expect(container.innerHTML).to.equal(innerHTML('This works!'));
+		});
+
+		it('basic example #2 ', () => {
+			render(<div>{ [a, a, a] }</div>, container);
+			expect(container.innerHTML).to.equal(innerHTML('<div>Hello worldHello worldHello world</div>'));
+			render(b, container);
+			expect(container.innerHTML).to.equal(innerHTML('This works!'));
+		});
+
+		it('basic nested example ', () => {
+			render(<div>{a}{b}</div>, container);
+			expect(container.innerHTML).to.equal(innerHTML('<div>Hello worldThis works!</div>'));
+			render(<div>{b}{a}</div>, container);
+			expect(container.innerHTML).to.equal(innerHTML('<div>This works!Hello world</div>'));
+		});
+
+		it('basic nested component example #2 ', () => {
+			render(<C>{a}</C>, container);
+			expect(container.innerHTML).to.equal(innerHTML('<div>Hello worldHello worldHello world</div>'));
+			render(<C>{b}{a}</C>, container);
+			expect(container.innerHTML).to.equal(innerHTML('<div>This works!Hello worldThis works!Hello worldThis works!Hello world</div>'));
+		});
+	});
+
+	describe('should properly render multiline text via JSX', () => {
+		it('should render accordingly', () => {
+			render((
+				<div class="tesla-battery__notice">
+					<p>
+						The actual amount of range that you experience will vary based
+						on your particular use conditions. See how particular use conditions
+						may affect your range in our simulation model.
+					</p>
+					<p>
+						Vehicle range may vary depending on the vehicle configuration,
+						battery age and condition, driving style and operating, environmental
+						and climate conditions.
+					</p>
+				</div>
+			), container);
+			expect(container.innerHTML).to.equal(innerHTML('<div class="tesla-battery__notice"><p>The actual amount of range that you experience will vary based on your particular use conditions. See how particular use conditions may affect your range in our simulation model.</p><p>Vehicle range may vary depending on the vehicle configuration, battery age and condition, driving style and operating, environmental and climate conditions.</p></div>'));
+		});
+	});
+
+	if (typeof global !== 'undefined' && !(global as any).usingJSDOM) {
+		describe('Progress element', () => {
+			it('Should be possible to change value of Progress element Github#714', () => {
+				render(<progress max={100} value="10" />, container);
+
+				expect(container.firstChild.getAttribute('value')).to.eql('10');
+
+				render(<progress max={100} value="33" />, container);
+
+				expect(container.firstChild.getAttribute('value')).to.eql('33');
+
+				render(<progress max={100} value={'0'} />, container);
+
+				expect(container.firstChild.getAttribute('value')).to.eql('0');
+			});
+			it('Should be possible to render Progress element without value', () => {
+				render(<progress max={100}/>, container);
+				expect(container.firstChild.tagName).to.eql('PROGRESS');
+				expect(container.firstChild.getAttribute('value')).to.be.oneOf([null, '', 0, '0']);
+
+				// Add as string
+				render(<progress max={100} value="3" />, container);
+				expect(container.firstChild.tagName).to.eql('PROGRESS');
+				expect(container.firstChild.getAttribute('value')).to.eql('3');
+			});
+		});
+	}
+
+	describe('Value for components', () => {
+		it('Should be possible to pass down value prop', () => {
+			function Foo({value}) {
+				return <div>{value}</div>;
+			}
+
+			render(<Foo value="100"/>, container);
+
+			expect(container.innerHTML).to.eql(innerHTML('<div>100</div>'));
 		});
 	});
 });

@@ -1,7 +1,6 @@
 import { expect } from 'chai';
+import { findDOMNode, options, render } from 'inferno';
 import Component from 'inferno-component';
-import Inferno, { findDOMNode, enableFindDOMNode, render } from 'inferno';
-Inferno; // suppress ts 'never used' error
 
 describe('findDOMNodes (JSX)', () => {
 	let container;
@@ -17,7 +16,7 @@ describe('findDOMNodes (JSX)', () => {
 	});
 
 	describe('various tests to see if the DOM node is right for the component', () => {
-		enableFindDOMNode();
+		options.findDOMNodeEnabled = true;
 		let instance1;
 		let instance2;
 		let instance3;

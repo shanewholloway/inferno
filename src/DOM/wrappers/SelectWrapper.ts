@@ -1,13 +1,32 @@
 import {
-	isArray,
 	EMPTY_OBJ,
+	isArray,
+	isInvalid,
 	isNullOrUndef
-} from '../../shared';
+} from 'inferno-helpers';
+import { isVNode } from '../../core/VNodes';
 import { wrappers } from './processElement';
-import { isVNode } from '../../core/shapes';
 
 function isControlled(props) {
 	return !isNullOrUndef(props.value);
+}
+
+function updateChildOptionGroup(vNode, value) {
+	const type = vNode.type;
+
+	if (type === 'optgroup') {
+		const children = vNode.children;
+
+		if (isArray(children)) {
+			for (let i = 0; i < children.length; i++) {
+				updateChildOption(children[i], value);
+			}
+		} else if (isVNode(children)) {
+			updateChildOption(children, value);
+		}
+	} else {
+		updateChildOption(vNode, value);
+	}
 }
 
 function updateChildOption(vNode, value) {
@@ -49,7 +68,7 @@ export function processSelect(vNode, dom) {
 
 	applyValue(vNode, dom);
 	if (isControlled(props)) {
-		let selectWrapper = wrappers.get(dom);
+		let selectWrapper: any = wrappers.get(dom);
 
 		if (!selectWrapper) {
 			selectWrapper = {
@@ -60,7 +79,9 @@ export function processSelect(vNode, dom) {
 			wrappers.set(dom, selectWrapper);
 		}
 		selectWrapper.vNode = vNode;
+		return true;
 	}
+	return false;
 }
 
 export function applyValue(vNode, dom) {
@@ -70,13 +91,15 @@ export function applyValue(vNode, dom) {
 		dom.multiple = props.multiple;
 	}
 	const children = vNode.children;
-	const value = props.value;
 
-	if (isArray(children)) {
-		for (let i = 0; i < children.length; i++) {
-			updateChildOption(children[i], value);
+	if (!isInvalid(children)) {
+		const value = props.value;
+		if (isArray(children)) {
+			for (let i = 0; i < children.length; i++) {
+				updateChildOptionGroup(children[i], value);
+			}
+		} else if (isVNode(children)) {
+			updateChildOptionGroup(children, value);
 		}
-	} else if (isVNode(children)) {
-		updateChildOption(children, value);
 	}
 }

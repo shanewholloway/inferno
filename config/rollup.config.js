@@ -1,27 +1,28 @@
-import * as p from 'path';
-import * as fs from 'fs';
-import { rollup } from 'rollup';
-import buble from 'rollup-plugin-buble';
-import replace from 'rollup-plugin-replace';
-import uglify from 'rollup-plugin-uglify';
-import filesize from 'rollup-plugin-filesize';
-import pack from '../package.json';
-import commonjs from 'rollup-plugin-commonjs';
-import { withNodeResolve, relativeModules, getPackageJSON, outputFileSize } from './rollup.helpers';
-import bundles from './rollup.bundles';
-import { aliases } from './aliases';
+const p = require('path');
+const fs = require('fs');
+const { rollup } = require('rollup');
+const buble = require('rollup-plugin-buble');
+const replace = require('rollup-plugin-replace');
+const uglify = require('rollup-plugin-uglify');
+const filesize = require('rollup-plugin-filesize');
+const pack = require('../package.json');
+const commonjs = require('rollup-plugin-commonjs');
+const { withNodeResolve, updatePackageVersion, outputFileSize } = require('./rollup.helpers');
+const bundles = require('./rollup.bundles');
+const { aliases } = require('./aliases');
 
-const pkg = JSON.parse(fs.readFileSync('./package.json'));
-const dependencies = Object.keys(pkg.peerDependencies || {});
+const infernoPackage = JSON.parse(fs.readFileSync('./package.json'));
+const dependencies = Object.keys(infernoPackage.peerDependencies || {});
 
-let plugins = [
+const EXTERNAL_BLACKLISTS = new Map();
+EXTERNAL_BLACKLISTS.set('inferno-helpers', true);
+
+const plugins = [
+	commonjs({
+		include: 'node_modules/**'
+	}),
 	buble({
 		objectAssign: 'Object.assign'
-	}),
-	relativeModules(),
-	commonjs({
-		include: 'node_modules/**',
-		exclude: ['node_modules/symbol-observable/**', '**/*.css']
 	})
 ];
 
@@ -46,25 +47,27 @@ if (process.env.NODE_ENV === 'production') {
 			VERSION: pack.version,
 			'process.env.NODE_ENV': JSON.stringify('production')
 		})
-	)
-} else {
+	);
+} else if (process.env.NODE_ENV === 'browser') {
 	plugins.push(
 		replace({
 			VERSION: pack.version,
-			//
-			// Setting NODE_ENV: 'development' replaces production checks from bundle making
-			// it impossible for end user to build their own bundle without minified code
-			//
-			// 'process.env.NODE_ENV': JSON.stringify('development')
+			'process.env.NODE_ENV': JSON.stringify('development')
 		})
-	)
+	);
+} else {
+	plugins.push(
+		replace({
+			VERSION: pack.version
+		})
+	);
 }
 
 // Filesize plugin needs to be last to report correct filesizes when minified
 plugins.push(filesize());
 
 function createBundle({ moduleGlobal, moduleName, moduleEntry, moduleGlobals }, path) {
-	const pack = getPackageJSON(moduleName, pkg);
+	const pack = updatePackageVersion(moduleName, infernoPackage);
 	const copyright =
 		'/*!\n' +
 		' * ' + moduleName + ' v' + pack.version + '\n' +
@@ -72,7 +75,7 @@ function createBundle({ moduleGlobal, moduleName, moduleEntry, moduleGlobals }, 
 		' * Released under the ' + pack.license + ' License.\n' +
 		' */';
 	const entry = p.resolve(moduleEntry);
-	const dest  = p.resolve(`${ path }${ moduleName }.${ process.env.NODE_ENV === 'production' ? 'min.js' : 'js' }`);
+	const dest = p.resolve(`${ path }${ moduleName }.${ process.env.NODE_ENV === 'production' ? 'min.js' : process.env.NODE_ENV === 'development' ? 'node.js' : 'js' }`);
 
 	const bundleConfig = {
 		dest,
@@ -85,20 +88,17 @@ function createBundle({ moduleGlobal, moduleName, moduleEntry, moduleGlobals }, 
 		sourceMap: false
 	};
 
-	const external = dependencies.concat(getDependenciesArray(pack));
+	// HACK: For now don't treat certain inferno-* as external dep, package them together
+	// for backwards compat in dist files. Remove this after lerna transition is completed
+	const external = dependencies.concat(getDependenciesArray(pack)).filter(n => !EXTERNAL_BLACKLISTS.has(n));
 	const virtuals = Object.keys(aliases);
 
 	// Skip bundling dependencies of each package
-	plugins = withNodeResolve(plugins, {
-		module: true,
+	const _plugins = withNodeResolve(plugins, {
 		jsnext: true,
-		main: true,
 		skip: external.concat(virtuals)
 	});
-
-	return rollup({ entry, plugins, external }).then(({ write }) => write(bundleConfig)).catch(err => {
-		console.log(err)
-	});
+	return rollup({ entry, plugins: _plugins, external }).then(({ write }) => write(bundleConfig)).catch(console.error);
 }
 
 /**
@@ -111,4 +111,4 @@ function getDependenciesArray(pack) {
 	return Object.keys(pack.dependencies || {});
 }
 
-Promise.all(bundles.map(bundle => createBundle(bundle, 'packages/inferno/dist/')));
+Promise.all(bundles.map(bundle => createBundle(bundle, bundle.dest || 'packages/inferno/dist/')));

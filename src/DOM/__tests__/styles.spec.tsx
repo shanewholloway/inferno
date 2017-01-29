@@ -1,7 +1,5 @@
-import Inferno, { render } from 'inferno';
 import { expect } from 'chai';
-
-Inferno; // suppress ts 'never used' error
+import { render } from 'inferno';
 
 function styleNode(style) {
 	return <div style={ style }></div>;

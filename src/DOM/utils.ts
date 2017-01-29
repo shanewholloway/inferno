@@ -1,36 +1,26 @@
 import {
-	VNodeFlags,
-	createVoidVNode,
-} from '../core/shapes';
-import {
+	EMPTY_OBJ,
 	isArray,
+	isFunction,
 	isInvalid,
 	isNullOrUndef,
+	isStringOrNumber,
 	isUndefined,
-	throwError,
-	EMPTY_OBJ
-} from '../shared';
-
-import cloneVNode from '../factories/cloneVNode';
-import { componentToDOMNodeMap, findDOMNodeEnabled } from './rendering';
+	throwError
+} from 'inferno-helpers';
+import options from '../core/options';
+import { cloneVNode, createTextVNode, createVoidVNode } from '../core/VNodes';
+import { svgNS } from './constants';
 import { mount } from './mounting';
 import { patch } from './patching';
-import { svgNS } from './constants';
+import { componentToDOMNodeMap } from './rendering';
 import {
-	unmount,
+	unmount
 } from './unmounting';
 
-export function copyPropsTo(copyFrom, copyTo) {
-	for (let prop in copyFrom) {
-		if (isUndefined(copyTo[prop])) {
-			copyTo[prop] = copyFrom[prop];
-		}
-	}
-}
-
-export function createStatefulComponentInstance(vNode, Component, props, context, isSVG, devToolsStatus) {
+export function createClassComponentInstance(vNode: VNode, Component, props: Props, context: Object, isSVG: boolean) {
 	if (isUndefined(context)) {
-		context = {};
+		context = EMPTY_OBJ; // Context should not be mutable
 	}
 	const instance = new Component(props, context);
 
@@ -39,10 +29,17 @@ export function createStatefulComponentInstance(vNode, Component, props, context
 		instance.props = props;
 	}
 	instance._patch = patch;
-	instance._devToolsStatus = devToolsStatus;
-	if (findDOMNodeEnabled) {
+	if (options.findDOMNodeEnabled) {
 		instance._componentToDOMNodeMap = componentToDOMNodeMap;
 	}
+
+	instance._unmounted = false;
+	instance._pendingSetState = true;
+	instance._isSVG = isSVG;
+	if (isFunction(instance.componentWillMount)) {
+		instance.componentWillMount();
+	}
+
 	const childContext = instance.getChildContext();
 
 	if (!isNullOrUndef(childContext)) {
@@ -50,14 +47,11 @@ export function createStatefulComponentInstance(vNode, Component, props, context
 	} else {
 		instance._childContext = context;
 	}
-	instance._unmounted = false;
-	instance._pendingSetState = true;
-	instance._isSVG = isSVG;
-	instance.componentWillMount();
-	instance._beforeRender && instance._beforeRender();
+
+	options.beforeRender && options.beforeRender(instance);
 	let input = instance.render(props, instance.state, context);
 
-	instance._afterRender && instance._afterRender();
+	options.afterRender && options.afterRender(instance);
 	if (isArray(input)) {
 		if (process.env.NODE_ENV !== 'production') {
 			throwError('a valid Inferno VNode (or null) must be returned from a component render. You may have returned an array or an invalid object.');
@@ -65,6 +59,8 @@ export function createStatefulComponentInstance(vNode, Component, props, context
 		throwError();
 	} else if (isInvalid(input)) {
 		input = createVoidVNode();
+	} else if (isStringOrNumber(input)) {
+		input = createTextVNode(input);
 	} else {
 		if (input.dom) {
 			input = cloneVNode(input);
@@ -81,25 +77,25 @@ export function createStatefulComponentInstance(vNode, Component, props, context
 	instance._lastInput = input;
 	return instance;
 }
-export function replaceLastChildAndUnmount(lastInput, nextInput, parentDom, lifecycle, context, isSVG, isRecycling) {
+export function replaceLastChildAndUnmount(lastInput, nextInput, parentDom, lifecycle: Lifecycle, context: Object, isSVG: boolean, isRecycling: boolean) {
 	replaceVNode(parentDom, mount(nextInput, null, lifecycle, context, isSVG), lastInput, lifecycle, isRecycling);
 }
 
-export function replaceVNode(parentDom, dom, vNode, lifecycle, isRecycling) {
+export function replaceVNode(parentDom, dom, vNode, lifecycle: Lifecycle, isRecycling) {
 	let shallowUnmount = false;
 	// we cannot cache nodeType here as vNode might be re-assigned below
 	if (vNode.flags & VNodeFlags.Component) {
 		// if we are accessing a stateful or stateless component, we want to access their last rendered input
 		// accessing their DOM node is not useful to us here
-		unmount(vNode, null, lifecycle, false, false, isRecycling);
+		unmount(vNode, null, lifecycle, false, isRecycling);
 		vNode = vNode.children._lastInput || vNode.children;
 		shallowUnmount = true;
 	}
 	replaceChild(parentDom, dom, vNode.dom);
-	unmount(vNode, null, lifecycle, false, shallowUnmount, isRecycling);
+	unmount(vNode, null, lifecycle, false, isRecycling);
 }
 
-export function createStatelessComponentInput(vNode, component, props, context) {
+export function createFunctionalComponentInput(vNode: VNode, component, props: Props, context: Object) {
 	let input = component(props, context);
 
 	if (isArray(input)) {
@@ -109,6 +105,8 @@ export function createStatelessComponentInput(vNode, component, props, context) 
 		throwError();
 	} else if (isInvalid(input)) {
 		input = createVoidVNode();
+	} else if (isStringOrNumber(input)) {
+		input = createTextVNode(input);
 	} else {
 		if (input.dom) {
 			input = cloneVNode(input);
@@ -124,7 +122,7 @@ export function createStatelessComponentInput(vNode, component, props, context) 
 	return input;
 }
 
-export function setTextContent(dom, text) {
+export function setTextContent(dom, text: string | number) {
 	if (text !== '') {
 		dom.textContent = text;
 	} else {
@@ -132,7 +130,7 @@ export function setTextContent(dom, text) {
 	}
 }
 
-export function updateTextContent(dom, text) {
+export function updateTextContent(dom, text: string) {
 	dom.firstChild.nodeValue = text;
 }
 
@@ -148,7 +146,7 @@ export function insertOrAppend(parentDom, newNode, nextNode) {
 	}
 }
 
-export function documentCreateElement(tag, isSVG) {
+export function documentCreateElement(tag, isSVG): Element {
 	if (isSVG === true) {
 		return document.createElementNS(svgNS, tag);
 	} else {
@@ -156,8 +154,8 @@ export function documentCreateElement(tag, isSVG) {
 	}
 }
 
-export function replaceWithNewNode(lastNode, nextNode, parentDom, lifecycle, context, isSVG, isRecycling) {
-	unmount(lastNode, null, lifecycle, false, false, isRecycling);
+export function replaceWithNewNode(lastNode, nextNode, parentDom, lifecycle: Lifecycle, context: Object, isSVG: boolean, isRecycling: boolean) {
+	unmount(lastNode, null, lifecycle, false, isRecycling);
 	const dom = mount(nextNode, null, lifecycle, context, isSVG);
 
 	nextNode.dom = dom;
@@ -171,28 +169,28 @@ export function replaceChild(parentDom, nextDom, lastDom) {
 	parentDom.replaceChild(nextDom, lastDom);
 }
 
-export function removeChild(parentDom, dom) {
+export function removeChild(parentDom: Element, dom: Element) {
 	parentDom.removeChild(dom);
 }
 
-export function removeAllChildren(dom, children, lifecycle, shallowUnmount, isRecycling) {
+export function removeAllChildren(dom: Element, children, lifecycle: Lifecycle, isRecycling: boolean) {
 	dom.textContent = '';
-	if (!lifecycle.fastUnmount) {
-		removeChildren(null, children, lifecycle, shallowUnmount, isRecycling);
+	if (!lifecycle.fastUnmount || (lifecycle.fastUnmount && options.recyclingEnabled && !isRecycling)) {
+		removeChildren(null, children, lifecycle, isRecycling);
 	}
 }
 
-export function removeChildren(dom, children, lifecycle, shallowUnmount, isRecycling) {
+export function removeChildren(dom: Element, children, lifecycle: Lifecycle, isRecycling: boolean) {
 	for (let i = 0; i < children.length; i++) {
 		const child = children[i];
 
 		if (!isInvalid(child)) {
-			unmount(child, dom, lifecycle, true, shallowUnmount, isRecycling);
+			unmount(child, dom, lifecycle, true, isRecycling);
 		}
 	}
 }
 
-export function isKeyed(lastChildren, nextChildren) {
+export function isKeyed(lastChildren: VNode[], nextChildren: VNode[]): boolean {
 	return nextChildren.length && !isNullOrUndef(nextChildren[0]) && !isNullOrUndef(nextChildren[0].key)
 		&& lastChildren.length && !isNullOrUndef(lastChildren[0]) && !isNullOrUndef(lastChildren[0].key);
 }

@@ -1,5 +1,5 @@
 import Component from 'inferno-component';
-import { warning } from '../shared';
+import { warning } from 'inferno-helpers';
 
 const specialKeys = {
 	children: true,
@@ -12,19 +12,19 @@ export default class Provider extends Component<any, any> {
 	childContextTypes: any = { mobxStores() {} };
 	private store: any;
 
-	constructor (props?: any, context?: any) {
+	constructor(props?: any, context?: any) {
 		super(props, context);
 		this.store = props.store;
 	}
 
-	public render () {
+	public render() {
 		return this.props.children;
 	}
 
-	getChildContext () {
-		let stores = {};
+	getChildContext() {
+		const stores = {};
 		// inherit stores
-		let baseStores = this.context.mobxStores;
+		const baseStores = this.context.mobxStores;
 
 		if (baseStores) {
 			for (let key in baseStores) {
@@ -47,16 +47,19 @@ if (process.env.NODE_ENV !== 'production') {
 	Provider.prototype.componentWillReceiveProps = function(nextProps) {
 
 		// Maybe this warning is to aggressive?
-		warning(Object.keys(nextProps).length === Object.keys(this.props).length,
-			'MobX Provider: The set of provided stores has changed. ' +
-			'Please avoid changing stores as the change might not propagate to all children'
-		);
-		for (let key in nextProps) {
-			warning(specialKeys[key] || this.props[key] === nextProps[key],
-				`MobX Provider: Provided store '${key}' has changed. ` +
-				`Please avoid replacing stores as the change might not propagate to all children`
+		if (Object.keys(nextProps).length !== Object.keys(this.props).length) {
+			warning(
+				'MobX Provider: The set of provided stores has changed. ' +
+				'Please avoid changing stores as the change might not propagate to all children'
 			);
 		}
-
+		for (let key in nextProps) {
+			if (!specialKeys[key] && this.props[key] !== nextProps[key]) {
+				warning(
+					`MobX Provider: Provided store '${key}' has changed. ` +
+					`Please avoid replacing stores as the change might not propagate to all children`
+				);
+			}
+		}
 	};
 }

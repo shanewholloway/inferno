@@ -1,22 +1,19 @@
 import {
-	escapeText,
-	isVoidElement,
-} from './utils';
-import {
 	isArray,
 	isInvalid,
 	isNullOrUndef,
-	isStringOrNumber,
-} from '../shared';
+	isStringOrNumber
+} from 'inferno-helpers';
 import {
 	renderAttributes,
-	renderStyleToString,
+	renderStyleToString
 } from './prop-renderers';
+import {
+	escapeText,
+	isVoidElement
+} from './utils';
 
 import { Readable } from 'stream';
-import {
-	VNodeFlags,
-} from '../core/shapes';
 
 export class RenderStream extends Readable {
 	initNode: any;
@@ -153,7 +150,7 @@ export class RenderStream extends Readable {
 		let html = '';
 		if (props) {
 			const className = props.className;
-			if (className) {
+			if (!isNullOrUndef(className)) {
 				outputAttrs.push('class="' + escapeText(className) + '"');
 			}
 

@@ -2,27 +2,34 @@ import PropTypes from 'proptypes';
 import isValidElement from '../../../build/factories/isValidElement';
 import createClass from '../../../build/component/createClass';
 import infernoCreateElement from '../../../build/factories/createElement';
-import { createVNode, NO_OP, render, findDOMNode, enableFindDOMNode, cloneVNode } from 'inferno';
+import { createVNode, render, findDOMNode, options, cloneVNode } from 'inferno';
+import { NO_OP } from 'inferno-helpers';
 import Component from 'inferno-component';
 
-enableFindDOMNode();
+options.findDOMNodeEnabled = true;
 
 function unmountComponentAtNode(container) {
 	render(null, container);
 	return true;
 }
 
+function isNullOrUndef(children) {
+	return children === null || children === undefined;
+}
+
 const ARR = [];
 
 const Children = {
 	map(children, fn, ctx) {
+		if (isNullOrUndef(children)) {return children;}
 		children = Children.toArray(children);
-		if (ctx && ctx!==children) fn = fn.bind(ctx);
+		if (ctx && ctx !== children) {fn = fn.bind(ctx);}
 		return children.map(fn);
 	},
 	forEach(children, fn, ctx) {
+		if (isNullOrUndef(children)) {return children;}
 		children = Children.toArray(children);
-		if (ctx && ctx!==children) fn = fn.bind(ctx);
+		if (ctx && ctx !== children) {fn = fn.bind(ctx);}
 		children.forEach(fn);
 	},
 	count(children) {
@@ -31,10 +38,11 @@ const Children = {
 	},
 	only(children) {
 		children = Children.toArray(children);
-		if (children.length!==1) throw new Error('Children.only() expects only one child.');
+		if (children.length !== 1) {throw new Error('Children.only() expects only one child.');}
 		return children[0];
 	},
 	toArray(children) {
+		if (isNullOrUndef(children)) {return [];}
 		return Array.isArray && Array.isArray(children) ? children : ARR.concat(children);
 	}
 };
@@ -42,22 +50,50 @@ const Children = {
 let currentComponent = null;
 
 Component.prototype.isReactComponent = {};
-Component.prototype._beforeRender = function() {
-	currentComponent = this;
+options.beforeRender = function (component) {
+	currentComponent = component;
 };
-Component.prototype._afterRender = function() {
+options.afterRender = function () {
 	currentComponent = null;
 };
 
 const version = '15.4.1';
 
+const xlinkAttrs = {
+	xlinkActuate: 'xlink:actuate',
+	xlinkArcrole: 'xlink:arcrole',
+	xlinkHref: 'xlink:href',
+	xlinkRole: 'xlink:role',
+	xlinkShow: 'xlink:show',
+	xlinkTitle: 'xlink:title',
+	xlinkType: 'xlink:type'
+};
+
 function normalizeProps(name, props) {
 	if ((name === 'input' || name === 'textarea') && props.onChange) {
-		const eventName = props.type === 'checkbox' ? 'onclick' : 'oninput'
+		const type = props.type;
+		let eventName;
 
+		if (type === 'checkbox') {
+			eventName = 'onclick';
+		} else if (type === 'file') {
+			eventName = 'onchange';
+		} else {
+			eventName = 'oninput';
+		}
 		if (!props[eventName]) {
 			props[eventName] = props.onChange;
 			delete props.onChange;
+		}
+	}
+	for (let prop in props) {
+		if (prop === 'onDoubleClick') {
+			props.onDblClick = props[prop];
+			delete props[prop];
+		}
+		if (xlinkAttrs[prop]) {
+			props[xlinkAttrs[prop]] = props[prop];
+			delete props[prop];
 		}
 	}
 }
@@ -89,25 +125,39 @@ const injectStringRefs = (originalFunction) => {
 		}
 		return originalFunction(name, props, ...children);
 	};
-}
+};
 
 const createElement = injectStringRefs(infernoCreateElement);
 const cloneElement = injectStringRefs(cloneVNode);
 
+const oldCreateVNode = options.createVNode;
+
+options.createVNode = (vNode) => {
+	const children = vNode.children;
+	let props = vNode.props;
+
+	if (isNullOrUndef(vNode.props)) {
+		props = vNode.props = {};
+	}
+	if (!isNullOrUndef(children) && isNullOrUndef(props.children)) {
+		props.children = children;
+	}
+	if (oldCreateVNode) {
+		oldCreateVNode(vNode);
+	}
+};
+
 // Credit: preact-compat - https://github.com/developit/preact-compat :)
-function shallowDiffers (a, b) {
-	for (let i in a) if (!(i in b)) return true;
-	for (let i in b) if (a[i] !== b[i]) return true;
+function shallowDiffers(a, b) {
+	for (let i in a) {if (!(i in b)) {return true;}}
+	for (let i in b) {if (a[i] !== b[i]) {return true;}}
 	return false;
 }
 
-function PureComponent(props, context) {
-	Component.call(this, props, context);
-}
-
-PureComponent.prototype = new Component({}, {});
-PureComponent.prototype.shouldComponentUpdate = function (props, state) {
-	return shallowDiffers(this.props, props) || shallowDiffers(this.state, state);
+class PureComponent extends Component {
+	shouldComponentUpdate(props, state) {
+		return shallowDiffers(this.props, props) || shallowDiffers(this.state, state);
+	}
 }
 
 class WrapperComponent extends Component {
@@ -124,9 +174,22 @@ function unstable_renderSubtreeIntoContainer(parentComponent, vNode, container, 
 	const component = render(wrapperVNode, container);
 
 	if (callback) {
-		callback(component);
+		// callback gets the component as context, no other argument.
+		callback.call(component);
 	}
 	return component;
+}
+
+// Credit: preact-compat - https://github.com/developit/preact-compat
+const ELEMENTS = 'a abbr address area article aside audio b base bdi bdo big blockquote body br button canvas caption cite code col colgroup data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link main map mark menu menuitem meta meter nav noscript object ol optgroup option output p param picture pre progress q rp rt ruby s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr circle clipPath defs ellipse g image line linearGradient mask path pattern polygon polyline radialGradient rect stop svg text tspan'.split(' ');
+
+function createFactory(type) {
+	return createElement.bind(null, type);
+}
+
+const DOM = {};
+for (let i = ELEMENTS.length; i--;) {
+	DOM[ELEMENTS[i]] = createFactory(ELEMENTS[i]);
 }
 
 export {
@@ -145,7 +208,9 @@ export {
 	cloneVNode,
 	NO_OP,
 	version,
-	unstable_renderSubtreeIntoContainer
+	unstable_renderSubtreeIntoContainer,
+	createFactory,
+	DOM
 };
 
 export default {
@@ -164,5 +229,7 @@ export default {
 	cloneVNode,
 	NO_OP,
 	version,
-	unstable_renderSubtreeIntoContainer
+	unstable_renderSubtreeIntoContainer,
+	createFactory,
+	DOM
 };

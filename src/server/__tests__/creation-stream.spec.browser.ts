@@ -1,7 +1,7 @@
-import { expect } from 'chai';
 import streamAsString from '../renderToString.stream';
-import concatStream from 'concat-stream-es6';
 import Component from 'inferno-component';
+import { expect } from 'chai';
+import concatStream from 'concat-stream-es6';
 import createElement from 'inferno-create-element';
 
 class StatefulComponent extends Component<any, any> {
@@ -97,10 +97,18 @@ describe('SSR Creation Streams - (non-JSX)', () => {
 			description: 'should render with array null children',
 			template: (value) => createElement('a', null, ['a', null]),
 			result: '<a>a</a>'
+		}, {
+			description: 'should ignore null className',
+			template: () => createElement('div', { className: null }),
+			result: '<div></div>'
+		}, {
+			description: 'should ignore undefined className',
+			template: () => createElement('div', { className: undefined }),
+			result: '<div></div>'
 		}
 	];
 
-	testEntries.forEach(test => {
+	testEntries.forEach((test) => {
 		it(test.description, () => {
 			const container = document.createElement('div');
 			const vDom = test.template('foo');

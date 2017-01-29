@@ -1,4 +1,4 @@
-import { isArray, isString } from '../shared';
+import { isArray, isString } from 'inferno-helpers';
 
 const emptyObject = Object.create(null);
 
@@ -29,7 +29,7 @@ export function getURLString(location): string {
  */
 export function mapSearchParams(search): any {
 	if (search === '') {
-		return emptyObject;
+		return {};
 	}
 
 	// Create an object with no prototype
@@ -64,6 +64,23 @@ export function toPartialURL(fullURL: string, partURL: string) {
 }
 
 /**
+ * Simulates ... operator by returning first argument
+ * with the keys in the second argument excluded
+ * @param _args
+ * @param excluded
+ * @returns {{}}
+ */
+export function rest(_args, excluded) {
+	const t = {};
+	for (let p in _args) {
+		if (excluded.indexOf(p) < 0) {
+			t[p] = _args[p];
+		}
+	}
+	return t;
+}
+
+/**
  * Sorts an array according to its `path` prop length
  * @param a
  * @param b
@@ -73,7 +90,7 @@ export function pathRankSort(a: any, b: any) {
 	const aAttr = a.props || emptyObject;
 	const bAttr = b.props || emptyObject;
 	const diff = rank(bAttr.path) - rank(aAttr.path);
-	return diff || (bAttr.path && aAttr.path) ? (bAttr.path.length - aAttr.path.length) : 0;
+	return diff || ((bAttr.path && aAttr.path) ? (bAttr.path.length - aAttr.path.length) : 0);
 }
 
 /**

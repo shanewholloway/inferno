@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import { render, createVNode } from 'inferno';
-import { VNodeFlags, createTextVNode } from "../../core/shapes";
-import { disableRecycling, recyclingEnabled, enableRecycling } from "../recycling";
+import { createVNode, render } from 'inferno';
+import { createTextVNode } from '../../core/VNodes';
 
 describe('patching routine', () => {
 	let container;
@@ -14,16 +13,16 @@ describe('patching routine', () => {
 		container.innerHTML = '';
 	});
 
-	// TODO: Try to cover patching lastVNode !== nextVNode. requires no normalise and hoisting
+	// TODO: Try to cover patching lastVNode !== nextVNode. requires no normalize and hoisting
 	it('Should do nothing if lastVNode strictly equals nextVnode', () => {
-		const yar = createVNode(2, 'div', null, '123', null, null, true);
-		const bar = createVNode(2, 'div', null, '123', null, null, true);
-		let foo = createVNode(2, 'div', null, [bar, yar], null, null, true);
+		const yar = createVNode(2, 'div', null, '123', null, null, null, true);
+		const bar = createVNode(2, 'div', null, '123', null, null, null, true);
+		let foo = createVNode(2, 'div', null, [bar, yar], null, null, null, true);
 
 		render(foo, container);
 		expect(container.innerHTML).to.eql('<div><div>123</div><div>123</div></div>');
 
-		foo = createVNode(2, 'div', null, [bar, yar], null, null, true);
+		foo = createVNode(2, 'div', null, [bar, yar], null, null, null, true);
 
 		render(foo, container);
 		expect(container.innerHTML).to.eql('<div><div>123</div><div>123</div></div>');
@@ -37,6 +36,7 @@ describe('patching routine', () => {
 			createTextVNode('a'),
 			null,
 			null,
+			null,
 			false
 		);
 		const invalidNode = createVNode(0, 'span');
@@ -45,7 +45,7 @@ describe('patching routine', () => {
 		try {
 			render(invalidNode, container);
 		} catch (e) {
-			expect(e.message).to.eql('Inferno Error: mount() expects a valid VNode, instead it received an object with the type "object".');
+			expect(e.message).to.eql('Inferno Error: mount() received an object that\'s not a valid VNode, you should stringify it first. Object: "{"children":null,"dom":null,"events":null,"flags":0,"key":null,"props":null,"ref":null,"type":"span"}".');
 		}
 		expect(container.innerHTML).to.eql('<span>a</span>');
 
@@ -65,8 +65,10 @@ describe('patching routine', () => {
 				createTextVNode('a'),
 				null,
 				null,
+				null,
 				false
 			),
+			null,
 			null,
 			null,
 			false
@@ -77,6 +79,7 @@ describe('patching routine', () => {
 			'span',
 			null,
 			createVNode(0, 'span'),
+			null,
 			null,
 			null,
 			false
@@ -91,15 +94,5 @@ describe('patching routine', () => {
 		expect(container.innerHTML).to.eql('a');
 		render(createTextVNode('a'), container);
 		expect(container.innerHTML).to.eql('a');
-	});
-});
-
-describe('Recyling', () => {
-	it('Should be possible to disable it', () => {
-		expect(recyclingEnabled).to.eql(true);
-		disableRecycling();
-		expect(recyclingEnabled).to.eql(false);
-		enableRecycling();
-		expect(recyclingEnabled).to.eql(true);
 	});
 });

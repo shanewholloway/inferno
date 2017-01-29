@@ -1,8 +1,9 @@
 import { expect } from 'chai';
-import connect from '../connect';
-import { createStore } from 'redux';
-import Component from 'inferno-component';
 import * as Inferno from 'inferno';
+import Component from 'inferno-component';
+import { createStore } from 'redux';
+import { innerHTML } from '../../tools/utils';
+import connect from '../connect';
 
 const render = Inferno.render;
 
@@ -57,63 +58,69 @@ describe('connect', () => {
 		const store = createStore(() => {
 			return { test: 1 };
 		});
-		const mapStateToProps = state => state;
+		const mapStateToProps = (state) => state;
 		const ConnectedComponent = connect(mapStateToProps)(BasicComponent);
 		render(<ConnectedComponent store={store}/>, container);
-		expect(container.innerHTML).to.equal('<div>1</div>');
+		expect(container.innerHTML).to.equal(innerHTML('<div>1</div>'));
 	});
 
-	it('should have correct mapDispatchToProps', () => {
+	it('should have correct mapDispatchToProps', (done) => {
 		const store = createStore((state = { test: 1 }, action) => {
 			if (action && action.type === 'TEST_ACTION') {
 				return { test: 2 };
 			}
 			return state;
 		});
-		const mapDispatchToProps = dispatch => {
+		const mapDispatchToProps = (dispatch) => {
 			return {
 				action: () => {
 					dispatch({ type: 'TEST_ACTION' });
 				}
 			};
 		};
-		const mapStateToProps = state => state;
+		const mapStateToProps = (state) => state;
 		const ConnectedComponent = connect(mapStateToProps, mapDispatchToProps)(BasicComponent1);
 		store.subscribe(() => {
 			render(<ConnectedComponent store={store}/>, container);
 		});
 		store.dispatch({ type: '' } as any);
-		expect(container.innerHTML).to.equal('<a>1</a>');
+		expect(container.innerHTML).to.equal(innerHTML('<a>1</a>'));
 		container.querySelector('a').click();
-		expect(container.innerHTML).to.equal('<a>2</a>');
+		setTimeout(() => {
+			expect(container.innerHTML).to.equal(innerHTML('<a>2</a>'));
+			done();
+		}, 10);
 	});
 
-	it('should have correct mapDispatchToProps', () => {
+	it('should have correct mapDispatchToProps #2', (done) => {
 		const store = createStore((state = { test: 1 }, action) => {
 			if (action && action.type === 'TEST_ACTION') {
 				return { test: 2 };
 			}
 			return state;
 		});
-		const mapDispatchToProps = dispatch => {
+		const mapDispatchToProps = (dispatch) => {
 			return {
 				action: () => {
 					dispatch({ type: 'TEST_ACTION' });
 				}
 			};
 		};
-		const mapStateToProps = state => state;
+		const mapStateToProps = (state) => state;
 		const ConnectedComponent = connect(mapStateToProps, mapDispatchToProps)(BasicComponent1);
 		store.subscribe(() => {
 			render(<ConnectedComponent store={store}/>, container);
 		});
 		store.dispatch({ type: '' } as any);
-		expect(container.innerHTML).to.equal('<a>1</a>');
+		expect(container.innerHTML).to.equal(innerHTML('<a>1</a>'));
 		container.querySelector('a').click();
-		expect(container.innerHTML).to.equal('<a>2</a>');
+		setTimeout(() => {
+			expect(container.innerHTML).to.equal(innerHTML('<a>2</a>'));
+			done();
+		});
 	});
 
-	it('should have correct mapDispatchToProps using action creators map', () => {
+	it('should have correct mapDispatchToProps using action creators map', (done) => {
 		const store = createStore((state = { test: 1 }, action) => {
 			if (action && action.type === 'TEST_ACTION') {
 				return { test: 2 };
@@ -125,14 +132,17 @@ describe('connect', () => {
 				return { type: 'TEST_ACTION' };
 			}
 		};
-		const mapStateToProps = state => state;
+		const mapStateToProps = (state) => state;
 		const ConnectedComponent = connect(mapStateToProps, mapDispatchToProps)(BasicComponent1);
 		store.subscribe(() => {
 			render(<ConnectedComponent store={store}/>, container);
 		});
 		store.dispatch({ type: '' } as any);
-		expect(container.innerHTML).to.equal('<a>1</a>');
+		expect(container.innerHTML).to.equal(innerHTML('<a>1</a>'));
 		container.querySelector('a').click();
-		expect(container.innerHTML).to.equal('<a>2</a>');
+		setTimeout(() => {
+			expect(container.innerHTML).to.equal(innerHTML('<a>2</a>'));
+			done();
+		}, 10);
 	});
 });

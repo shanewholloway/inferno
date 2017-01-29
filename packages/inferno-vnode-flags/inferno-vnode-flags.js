@@ -1,1 +1,2 @@
-module.exports = require('inferno/dist/inferno-vnode-flags');
+module.exports = require('./build');
+module.exports.default = module.exports;

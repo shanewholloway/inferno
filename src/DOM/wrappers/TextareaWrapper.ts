@@ -1,11 +1,23 @@
 import {
 	EMPTY_OBJ,
 	isNullOrUndef
-} from '../../shared';
+} from 'inferno-helpers';
 import { wrappers } from './processElement';
 
 function isControlled(props) {
 	return !isNullOrUndef(props.value);
+}
+
+function wrappedOnChange(e) {
+	let vNode = this.vNode;
+	const events = vNode.events || EMPTY_OBJ;
+	const event = events.onChange;
+
+	if (event.event) {
+		event.event(event.data, e);
+	} else {
+		event(e);
+	}
 }
 
 function onTextareaInputChange(e) {
@@ -26,13 +38,13 @@ function onTextareaInputChange(e) {
 	}
 	// the user may have updated the vNode from the above onInput events
 	// so we need to get it from the context of `this` again
-	applyValue(this.vNode, dom);
+	applyValue(this.vNode, dom, false);
 }
 
-export function processTextarea(vNode, dom) {
+export function processTextarea(vNode, dom, mounting: boolean) {
 	const props = vNode.props || EMPTY_OBJ;
-	applyValue(vNode, dom);
-	let textareaWrapper = wrappers.get(dom);
+	applyValue(vNode, dom, mounting);
+	let textareaWrapper: any = wrappers.get(dom);
 
 	if (isControlled(props)) {
 		if (!textareaWrapper) {
@@ -41,17 +53,39 @@ export function processTextarea(vNode, dom) {
 			};
 			dom.oninput = onTextareaInputChange.bind(textareaWrapper);
 			dom.oninput.wrapped = true;
+			if (props.onChange) {
+				dom.onchange = wrappedOnChange.bind(textareaWrapper);
+				dom.onchange.wrapped = true;
+			}
 			wrappers.set(dom, textareaWrapper);
 		}
 		textareaWrapper.vNode = vNode;
+		return true;
 	}
+	return false;
 }
 
-export function applyValue(vNode, dom) {
+export function applyValue(vNode, dom, mounting: boolean) {
 	const props = vNode.props || EMPTY_OBJ;
 	const value = props.value;
+	const domValue = dom.value;
 
-	if (dom.value !== value) {
-		dom.value = value;
+	if (isNullOrUndef(value)) {
+		if (mounting) {
+			const defaultValue = props.defaultValue;
+
+			if (!isNullOrUndef(defaultValue)) {
+				if (defaultValue !== domValue) {
+					dom.value = defaultValue;
+				}
+			} else if (domValue !== '') {
+				dom.value = '';
+			}
+		}
+	} else {
+		/* There is value so keep it controlled */
+		if (domValue !== value) {
+			dom.value = value;
+		}
 	}
 }
