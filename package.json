@@ -185,5 +185,8 @@
     "test": "npm run lint && npm run test:browser && npm run test:server"
   },
   "pre-commit": [
+    "lint",
+    "test",
+    "build"
   ]
 }
