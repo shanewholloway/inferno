@@ -1,13 +1,13 @@
+import { observable, extendObservable, toJS } from 'mobx';
 import { expect } from 'chai';
-import { render } from 'inferno';
+import observer from '../observer';
 import Component from 'inferno-component';
-import { extendObservable, observable, toJS } from 'mobx';
-import { innerHTML } from '../../tools/utils';
-import makeReactive from '../makeReactive';
+import Inferno, { render } from 'inferno';
+Inferno; // suppress ts 'never used' error
 
 describe('MobX Observer', () => {
 	let container;
-	const store = {
+	let store = {
 		todos: observable(['one', 'two']),
 		extra: observable({ test: 'observable!' })
 	};
@@ -23,21 +23,21 @@ describe('MobX Observer', () => {
 		render(null, container);
 	});
 
-	const TodoItem = makeReactive(function({ todo }) {
+	const TodoItem = observer(function({ todo }) {
 		return <li>{ todo }</li>;
 	});
 
 	let todoListRenderings = 0;
 	let todoListWillReactCount = 0;
-	const TodoList = makeReactive(class extends Component<any, any> {
+	const TodoList = observer(class extends Component<any, any> {
 		componentWillReact() {
 			todoListWillReactCount++;
 		}
 
 		render() {
 			todoListRenderings++;
-			const todos = store.todos;
-			return <div>{todos.map((todo) => <TodoItem todo={todo}/>)}</div>;
+			let todos = store.todos;
+			return <div>{todos.map(todo => <TodoItem todo={todo}/>)}</div>;
 		}
 	});
 
@@ -47,19 +47,19 @@ describe('MobX Observer', () => {
 
 	it('should render a todo list', () => {
 		render(<TodoList/>, container);
-		expect(container.innerHTML).to.equal(innerHTML('<div><li>one</li><li>two</li></div>'));
+		expect(container.innerHTML).to.equal('<div><li>one</li><li>two</li></div>');
 	});
 
 	it('should render a todo list with added todo item', () => {
 		store.todos.push('three');
 		render(<TodoList/>, container);
-		expect(container.innerHTML).to.equal(innerHTML('<div><li>one</li><li>two</li><li>three</li></div>'));
+		expect(container.innerHTML).to.equal('<div><li>one</li><li>two</li><li>three</li></div>');
 	});
 
 	it('should render a todo list with non observale item', () => {
-		const FlatList = makeReactive(class extends Component<any, any> {
+		const FlatList = observer(class extends Component<any, any> {
 			render({ extra }) {
-				return <div>{store.todos.map((title) => <li>{ title }{ extra.test }</li>)}</div>;
+				return <div>{store.todos.map(title => <li>{ title }{ extra.test }</li>)}</div>;
 			}
 		});
 
@@ -70,7 +70,7 @@ describe('MobX Observer', () => {
 			test: 'new entry'
 		});
 		render(<FlatList extra={ store.extra }/>, container);
-		expect(container.innerHTML).to.equal(innerHTML('<div><li>oneXXX</li><li>twoXXX</li><li>threeXXX</li></div>'));
+		expect(container.innerHTML).to.equal('<div><li>oneXXX</li><li>twoXXX</li><li>threeXXX</li></div>');
 	});
 
 });

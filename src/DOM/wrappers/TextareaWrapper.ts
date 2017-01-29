@@ -44,7 +44,7 @@ function onTextareaInputChange(e) {
 export function processTextarea(vNode, dom, mounting: boolean) {
 	const props = vNode.props || EMPTY_OBJ;
 	applyValue(vNode, dom, mounting);
-	let textareaWrapper = wrappers.get(dom);
+	let textareaWrapper: any = wrappers.get(dom);
 
 	if (isControlled(props)) {
 		if (!textareaWrapper) {

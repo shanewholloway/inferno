@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import Component from '../../component/es2015';
 import { render } from '../../DOM/rendering';
+import Component from '../../component/es2015';
 import createElement from '../../factories/createElement';
 import { innerHTML } from '../../tools/utils';
-import connect from '../connect';
-import inject from '../inject';
 import Provider from '../Provider';
+import connect from '../observer';
+import inject from '../inject';
 
 describe('MobX connect()', () => {
 
@@ -113,5 +113,4 @@ describe('MobX inject()', () => {
 		render(App(), container);
 		expect(container.innerHTML).to.equal(innerHTML('<span>hello world</span>'));
 	});
-
 });

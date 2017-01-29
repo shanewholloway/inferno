@@ -71,7 +71,7 @@ function onCheckboxChange(e) {
 function handleAssociatedRadioInputs(name) {
 	const inputs: any = document.querySelectorAll(`input[type="radio"][name="${ name }"]`);
 	[].forEach.call(inputs, (dom) => {
-		const inputWrapper = wrappers.get(dom);
+		const inputWrapper: any = wrappers.get(dom);
 
 		if (inputWrapper) {
 			const props = inputWrapper.vNode.props;
@@ -88,7 +88,7 @@ export function processInput(vNode, dom): boolean {
 
 	applyValue(vNode, dom);
 	if (isControlled(props)) {
-		let inputWrapper = wrappers.get(dom);
+		let inputWrapper: any = wrappers.get(dom);
 
 		if (!inputWrapper) {
 			inputWrapper = {

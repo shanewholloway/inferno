@@ -68,7 +68,7 @@ export function processSelect(vNode, dom) {
 
 	applyValue(vNode, dom);
 	if (isControlled(props)) {
-		let selectWrapper = wrappers.get(dom);
+		let selectWrapper: any = wrappers.get(dom);
 
 		if (!selectWrapper) {
 			selectWrapper = {

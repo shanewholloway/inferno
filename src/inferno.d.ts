@@ -106,7 +106,7 @@ declare module 'inferno-component' {
 		componentDidMount?: () => void;
 		componentWillMount?(): void;
 		componentWillReceiveProps?(nextProps: P, nextContext: any): void;
-		shouldComponentUpdate?(nextProps: P, nextState: S, nextContext: any): boolean;
+		shouldComponentUpdate?(nextProps?: P, nextState?: S, nextContext?: any): boolean;
 		componentWillUpdate?(nextProps: P, nextState: S, nextContext: any): void;
 		componentDidUpdate?(prevProps: P, prevState: S, prevContext: any): void;
 		componentWillUnmount?(): void;
@@ -258,15 +258,19 @@ declare module 'history' {
 
 declare module 'mobx' {
 	export function toJS(value: any): any;
+	export function action(func: Function): any;
 	export function observable(value: any): any;
 	export function isObservable(value: any, property?: string): boolean;
 	export function extendObservable(...rest): any;
+	export class Atom {
+		constructor(name: string);
+		reportObserved();
+		reportChanged();
+	}
 	export class Reaction {
 		constructor(name?: string, onInvalidate?: any);
 		track(param: any): void;
-		runReaction();
 		dispose();
-		getDisposer(): any;
 	}
 	export const extras: any;
 }
